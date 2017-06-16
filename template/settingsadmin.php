@@ -1,5 +1,6 @@
 <?php
 defined('EE_ADMIN') OR die('No direct access allowed.');
+
 if (isset($_GET['settings-updated'])):
     ?>
     <div id="message" class="updated">
@@ -46,6 +47,8 @@ if (isset($_GET['settings-updated'])):
             <?php if (empty($error) === false) { ?> Do not have an account yet? <a href="https://elasticemail.com/account#/create-account" target="_blank" title="First 1000 emails for free.">Create your account now</a>!<br/>
             <a href="http://elasticemail.com/transactional-email" target="_blank">Tell me more about it</a>
             <?php } ?>
+            
+            <!-- add link -->
             <h4>
                 Want to use this plugin in a different language version? <a href="http://support.elasticemail.com/">Let us know or help us translate it!</a>
             </h4>

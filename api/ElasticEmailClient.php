@@ -32,128 +32,93 @@ class ApiClient {
 
     private static $apiKey = null;
     private static $ApiUri = "https://api.elasticemail.com/v2/";
+    private static $postbody, $boundary;
 
     public static function Request($target, $data = array(), $method = "GET", array $attachments = array()) {
-        self::cleanNullData($data);
+        self::$postbody = array();
+        self::$boundary = hash('sha256', uniqid('', true));
+        $url = self::$ApiUri . $target;
         $data['apikey'] = self::$apiKey;
-        $url = self::$ApiUri . $target . (($method === "GET") ? '?' . http_build_query($data) : '');
+
         if (empty(self::$apiKey)) {
             throw new ApiException($url, $method, 'ApiKey is not set.');
         }
-        $ch = curl_init();
-        
-        curl_setopt_array($ch, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER => false,
-            CURLOPT_SSL_VERIFYPEER => false,
-        ));
 
- if (empty($data['headers']) != true) {
-     foreach($data['headers'] as $i=>$item) {
-         $data['headers'.'_'.$i] = $item;
-     }
-     unset($data['headers']);
-        
-} 
-        if ($method === "POST" && count($attachments) > 0) {
-            foreach ($attachments as $k => $attachment) {
-                $data['file_' . $k] = self::attachFile($attachment);
+        self::parseData($data);
+        self::parseAttachments($attachments);
+        array_push(self::$postbody, '--' . self::$boundary . '--');
+        try {
+            $response = wp_remote_post($url, array(
+                'method' => 'POST',
+                'headers' => array(
+                    'content-type' => 'multipart/form-data; boundary=' . self::$boundary
+                ),
+                'body' => implode("", self::$postbody)));
+
+            if ($response['response']['code'] !== 200) {
+                return "Code Error: " . $response['response']['code'];
             }
-        }
-        
-        if ($method === "POST") {
-            curl_setopt($ch, CURLOPT_POST, true);
             
-            if (empty($attachment)){
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            $jsonresponse = json_decode($response['body'], true);
+            if ($jsonresponse['success'] === true) {
+                return true;
             } else {
-                error_reporting(E_ALL ^ E_NOTICE);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                return $response['body'];
             }
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
-
-        $response = curl_exec($ch);
-
-        if ($response === false) {
-            throw new ApiException($url, $method, 'Request Error: ' . curl_error($ch));
-        }
-
-        curl_close($ch);
-        $jsonResult = json_decode($response);
-        $parseError = self::getParseError();
-        if ($parseError !== false) {
-            throw new ApiException($url, $method, 'Request Error: ' . $parseError, $response);
-        }
-        if ($jsonResult->success === false) {
-            throw new ApiException($url, $method, $jsonResult->error);
-        }
-
-        return $jsonResult->data;
-    }
-    
-    public static function getFile($target, $data) {
-        self::cleanNullData($data);
-        $data['apikey'] = self::$apiKey;
-        $url = self::$ApiUri . $target;
-        $ch = curl_init();
-        curl_setopt_array($ch, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER => false,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $data
-        ));
-
-        $response = curl_exec($ch);
-        if ($response === false) {
-            throw new ApiException($url, "POST", 'Request Error: ' . curl_error($ch));
-        }
-        curl_close($ch);
-        return $response;
     }
 
+    //Set Elastic Email Api Key
     public static function SetApiKey($apiKey) {
         self::$apiKey = $apiKey;
     }
 
-    private static function cleanNullData(&$data) {
+    //Parsing data
+    private static function parseData($data) {
         foreach ($data as $key => $item) {
-            if ($item === null) {
-                unset($data[$key]);
+
+            if (empty($item)) {
+                continue;
             }
-            if (is_bool($item)) {
-                $data[$key] = ($item) ? 'true' : 'false';
+
+            if (is_array($item)) {
+                self::parseData($item);
+            } else {
+                array_push(self::$postbody, '--' . self::$boundary . "\r\n" . 'Content-Disposition: form-data; name=' . $key . '' . "\r\n\r\n" . $item . "\r\n");
             }
         }
     }
 
-    private static function attachFile($attachment) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $attachment);
-        finfo_close($finfo);
-    
-       $save_file = realpath($attachment);
-       $save_file = basename($save_file);
-       return new \CurlFile($attachment, $mimeType, $save_file);    
-    }
+    //Parsing attachments
+    private static function parseAttachments($attachments) {
+        if (empty($attachments) === true) {
+            return;
+        }
 
-    private static function getParseError() {
-        switch (json_last_error()) {
-            case JSON_ERROR_NONE:
-                return false;
-            case JSON_ERROR_DEPTH:
-                return 'Maximum stack depth exceeded';
-            case JSON_ERROR_STATE_MISMATCH:
-                return 'Underflow or the modes mismatch';
-            case JSON_ERROR_CTRL_CHAR:
-                return 'Unexpected control character found';
-            case JSON_ERROR_SYNTAX:
-                return 'Syntax error, malformed JSON';
-            case JSON_ERROR_UTF8:
-                return 'Malformed UTF-8 characters, possibly incorrectly encoded';
-            default:
-                return 'Unknown error';
+        foreach ($attachments as $i => $attpath) {
+            if (empty($attpath) === true) {
+                continue;
+            }
+
+            //Extracting the file name
+            $filenameonly = explode("/", $attpath);
+            $fname = $filenameonly[sizeof($filenameonly) - 1];
+            
+            array_push(self::$postbody, '--' . self::$boundary . "\r\n");
+            array_push(self::$postbody, 'Content-Disposition: form-data; name="attachments' . ($i + 1) . '"; filename="' . $fname . '"' . "\r\n\r\n");
+
+            //Loading attachment
+            $handle = fopen($attpath, "r");
+            if ($handle) {
+                $fileContent = '';
+                while (($buffer = fgets($handle, 4096)) !== false) {
+                    $fileContent .= $buffer;
+                }
+                fclose($handle);
+            }
+            array_push(self::$postbody, $fileContent . "\r\n");
         }
     }
 }
@@ -180,7 +145,6 @@ class ApiException extends \Exception {
     public function __toString() {
         return strtoupper($this->method) . ' ' . $this->url . ' returned: ' . $this->getMessage();
     }
-
 }
 
 /**
@@ -1576,7 +1540,7 @@ class Email {
      * @param string $channel An ID field (max 191 chars) that can be used for reporting [will default to HTTP API or SMTP API]
      * @param string $bodyHtml Html email body
      * @param string $bodyText Text email body
-     * @param string $charset Text value of charset encoding for example: iso-8859-1, windows-1251, utf-8, us-ascii, windows-1250 and more…
+     * @param string $charset Text value of charset encoding for example: iso-8859-1, windows-1251, utf-8, us-ascii, windows-1250 and moreÄ‚Ë?Ă�?â€šÂ¬Ă‚Â¦
      * @param string $charsetBodyHtml Sets charset for body html MIME part (overrides default value from charset parameter)
      * @param string $charsetBodyText Sets charset for body text MIME part (overrides default value from charset parameter)
      * @param ApiTypes\EncodingType $encodingType 0 for None, 1 for Raw7Bit, 2 for Raw8Bit, 3 for QuotedPrintable, 4 for Base64 (Default), 5 for Uue  note that you can also provide the text version such as "Raw7Bit" for value 1.  NOTE: Base64 or QuotedPrintable is recommended if you are validating your domain(s) with DKIM.
@@ -1590,7 +1554,6 @@ class Email {
      * @param bool $isTransactional True, if email is transactional (non-bulk, non-marketing, non-commercial). Otherwise, false
      * @return ApiTypes\EmailSend
      */
-   /*
     public function Send($subject = null, $from = null, $fromName = null, $sender = null, $senderName = null, $msgFrom = null, $msgFromName = null, $replyTo = null, $replyToName = null, array $to = array(), array $msgTo = array(), array $msgCC = array(), array $msgBcc = array(), array $lists = array(), array $segments = array(), $mergeSourceFilename = null, $channel = null, $bodyHtml = null, $bodyText = null, $charset = null, $charsetBodyHtml = null, $charsetBodyText = null, $encodingType = ApiTypes\EncodingType::None, $template = null, array $attachmentFiles = array(), array $headers = array(), $postBack = null, array $merge = array(), $timeOffSetMinutes = null, $poolName = null, $isTransactional = false) {
         return ApiClient::Request('email/send', array(
                     'subject' => $subject,
@@ -1624,43 +1587,6 @@ class Email {
                     'poolName' => $poolName,
                     'isTransactional' => $isTransactional
                         ), "POST", $attachmentFiles);
-    }
-    */
-
-        public function Send($subject = null, $from = null, $fromName = null, $sender = null, $senderName = null, $msgFrom = null, $msgFromName = null, $replyTo = null, $replyToName = null, array $to = array(), array $msgTo = array(), array $msgCC = array(), array $msgBcc = array(), array $lists = array(), array $segments = array(), $mergeSourceFilename = null, $channel = null, $bodyHtml = null, $bodyText = null, $charset = null, $charsetBodyHtml = null, $charsetBodyText = null, $encodingType = ApiTypes\EncodingType::None, $template = null, array $attachmentFiles = array(), array $headers = array(), $postBack = null, array $merge = array(), $timeOffSetMinutes = null, $poolName = null, $isTransactional = false) {          
-
-        return ApiClient::Request('email/send', array(
-                    'subject' => $subject,
-                    'from' => $from,
-                    'fromName' => $fromName,
-                    'sender' => $sender,
-                    'senderName' => $senderName,
-                    'msgFrom' => $msgFrom,
-                    'msgFromName' => $msgFromName,
-                    'replyTo' => $replyTo,
-                    'replyToName' => $replyToName,
-                    'to' => (count($to) === 0) ? null : join(';', $to),
-                    'msgTo' => (count($msgTo) === 0) ? null : join(';', $msgTo),
-                    'msgCC' => (count($msgCC) === 0) ? null : join(';', $msgCC),
-                    'msgBcc' => (count($msgBcc) === 0) ? null : join(';', $msgBcc),
-                    'lists' => (count($lists) === 0) ? null : join(';', $lists),
-                    'segments' => (count($segments) === 0) ? null : join(';', $segments),
-                    'mergeSourceFilename' => $mergeSourceFilename,
-                    'channel' => $channel,
-                    'bodyHtml' => $bodyHtml,
-                    'bodyText' => $bodyText,
-                    'charset' => $charset,
-                    'charsetBodyHtml' => $charsetBodyHtml,
-                    'charsetBodyText' => $charsetBodyText,
-                    'encodingType' => $encodingType,
-                    'template' => $template,
-                    'headers' => $headers,
-                    'postBack' => $postBack,
-                    'merge' => $merge,
-                    'timeOffSetMinutes' => $timeOffSetMinutes,
-                    'poolName' => $poolName,
-                    'isTransactional' => $isTransactional
-                        ), "POST", $attachmentFiles);           
     }
 
     /**
@@ -2100,5 +2026,3 @@ abstract class EncodingType {
     const Uue = 5;
 
 }
-
-

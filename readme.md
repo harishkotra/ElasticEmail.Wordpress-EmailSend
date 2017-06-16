@@ -9,7 +9,7 @@ Using this plugin you can improve your delivery with Elastic Email's powerful, l
 Please follow the information below and find out more about how we can help you send your emails in a more efficient way.
 In case of any questions or concerns, feel free to [contact us](http://support.elasticemail.com/) anytime.
 
-### What is ElasticEmail for WordPress plugin?
+## What is ElasticEmail for WordPress plugin?
 
 ElasticEmail for WordPress plugin is an easy way to maintain all the aspects related to your email campaigns. From creating and sending your emails to monitoring and managing campaigns' stats.
 ElasticEmail for WordPress plugin replaces WordPress’ default wp_mail() function by using an API integration with Elastic Email to send an outgoing email from your WordPress installation.
@@ -17,7 +17,7 @@ Thanks to this, you can track all the parameters of your delivery, use Private I
 
 ElasticEmail for WordPress is compatible with most solutions available on the market including WooCommerce and Contact Form 7.
 
-### How to get started?
+## How to get started?
 
 Just sign up to [Elastic Email](https://elasticemail.com/), add ElasticEmail for WordPress plugin (ElasticEmail.WP-EmailSender) to your dashboard and enter your API Key.
 
@@ -26,7 +26,7 @@ Just sign up to [Elastic Email](https://elasticemail.com/), add ElasticEmail for
 
 To connect WordPress to Elastic Email:
 1. Log in to your WordPress dashboard and click Plugins in the left sidebar.
-2. Click Add New at the top of the page and then, search for “ElasticEmail API Sender” and click “Install Now”.
+2. Click Add New at the top of the page and then, search for “Elastic Email Sender” and click “Install Now”.
 3. Alternatively, download the plugin and upload the content of “eemail.zip” to your plugins directory, which usually is “/wp-content/plugins/”.
 4. Click Activate Plugin.
 5. Enter your [Elastic Email API key](https://elasticemail.com/account/#/settings/apiconfiguration) in the plugin settings, and click Save Changes.
@@ -53,7 +53,7 @@ You can find the Elastic Email API Key in Settings/SMTP/API [account](https://el
 ### Where can I find private IP address settings?
 All the details about the private IPs are available in Settings/Private IPs [account](https://elasticemail.com/account/#/settings/privateips).
 
-### I can’t send any attachments. =
+### I can’t send any attachments.
 Make sure you [allowed for the use of custom headers](https://elasticemail.com/account/#/settings/sending) by checking "Allow Custom Headers" option in Settings/Sending.
 
 ### Are my mail available also as a plain text?
