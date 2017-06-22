@@ -30,7 +30,7 @@ use ApiTypes;
 
 class ApiClient {
 
-    private static $apiKey = null;
+    public static $apiKey = null;
     private static $ApiUri = "https://api.elasticemail.com/v2/";
     private static $postbody, $boundary;
 

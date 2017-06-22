@@ -12,10 +12,7 @@
 
 /* Version check */
 global $wp_version;
-$exit_msg = ' 
-ElasticEmail Sender requires WordPress 4.1 or newer. 
-<a href="http://codex.wordpress.org/Upgrading_WordPress"> 
-Please update!</a>';
+$exit_msg = 'ElasticEmail Sender requires WordPress 4.1 or newer. <a href="http://codex.wordpress.org/Upgrading_WordPress"> Please update!</a>';
 
 if (version_compare($wp_version, "4.1", "<")) {
     exit($exit_msg);
@@ -26,13 +23,10 @@ eemail::on_load(__DIR__);
 
 /* ----------- ADMIN ----------- */
 if (is_admin()) {
-
     function deactivate() {
         delete_option('ee_options');
     }
-
     register_deactivation_hook(__FILE__, 'deactivate');
-
     require_once 'class/eeadmin.php';
     $ee_admin = new eeadmin(__DIR__);
-} 
+}

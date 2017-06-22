@@ -32,6 +32,7 @@ class eemail {
                 return eemail::wp_mail_native($to, $subject, $message, $headers, $attachments, $e->getMessage());
             }
         }
+
     }
 
     static function send($to, $subject, $message, $headers, $attachments) {
@@ -152,7 +153,7 @@ class eemail {
     }
 
     static function is_configured() {
-        return self::getOption('ee_enable') === 'yes' && !empty(self::getOption('ee_apikey'));
+        return (self::getOption('ee_enable') === 'yes' && self::getOption('ee_apikey'));
     }
 
     static function getOption($name, $default = false) {
