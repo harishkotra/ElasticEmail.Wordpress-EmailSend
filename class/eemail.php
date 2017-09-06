@@ -130,6 +130,14 @@ class eemail {
             $to = array_merge(explode(',', $to), $bcc);
         }
 
+        $bodyText = "";
+        $bodyHTML = "";
+        if (strtolower($content_type) === 'text/html') {
+            $bodyHTML = $message;
+        } else {
+            $bodyText = $message;
+        }
+
         $from_email = apply_filters('wp_mail_from', $from_email);
         $from_name = apply_filters('wp_mail_from_name', $from_name);
         $content_type = apply_filters('wp_mail_content_type', $content_type);
@@ -137,7 +145,7 @@ class eemail {
 
         $Email = new \ElasticEmailClient\Email();
 
-        return $Email->Send($subject, $from_email, $from_name, null, null, null, null, $reply_to, $reply_to_name, array(), $to, $cc, $bcc, array(), array(), null, null /* channel */, $message, /* $bodyText */ null, $charset, null, null, ApiTypes\EncodingType::None, null, $attachments, $headers);
+        return $Email->Send($subject, $from_email, $from_name, null, null, null, null, $reply_to, $reply_to_name, array(), $to, $cc, $bcc, array(), array(), null, null /* channel */, $bodyHTML, $bodyText, $charset, null, null, ApiTypes\EncodingType::None, null, $attachments, $headers);
     }
 
     static function wp_mail_native($to, $subject, $message, $headers, $attachments, $error) {

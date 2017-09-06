@@ -1,8 +1,10 @@
+![alt screenshot](assets/banner-772x250.png)
+
 # Elastic Email Sender
 
 This plugin reconfigures the wp_mail() function to send email using REST API (via Elastic Email) instead of SMTP and creates an options page that allows you to specify various options.
 
-## Description 
+## Description
 
 Elastic Email Sender allows you to connect your WordPress with powerful, low-cost Elastic Email API and send up to 150,000 emails free per month!
 Please follow the information below and find out more about how we can help you send your emails in a more efficient way.
@@ -43,7 +45,7 @@ Start with Elastic Email by creating a new account on our [website](https://elas
 ### What do I have to do to get 150,000 free emails per month?
 To get the 150,000 emails free per month, you need to sign up for a free Elastic Email account, complete your personal data and successfully verify your sender domain.
 
-### How to setup a domain to start sending? 
+### How to setup a domain to start sending?
 Find out [how to verify your domain](https://elasticemail.com/support/user-interface/settings/your-domain/) on our Resources page.
 
 ### Where do I find Elastic Email API Key?
@@ -65,6 +67,7 @@ All the data about your delivery statuses and campaigns stats are available in R
 You can see your reports and sending history in Reports/Email logs. Keep in mind that logs older than 35 days are not stored. [account](https://elasticemail.com/account/#/reports/emails).
 
 ## Versioning
+1.0.1 Bugfix in sending html and text messages.
 1.0 Public release
 
 ## Authors

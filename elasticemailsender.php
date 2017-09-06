@@ -4,7 +4,7 @@
   Plugin Name: Elastic Email Sender
   Plugin URI: https://github.com/ElasticEmail/ElasticEmail.Wordpress-EmailSend
   Description: This plugin reconfigures the wp_mail() function to send email using REST API (via Elastic Email) instead of SMTP and creates an options page that allows you to specify various options.
-  Version: 1.0
+  Version: 1.0.1
   License: GPLv2 or later
   Elastic Email Inc. for WordPress
   Copyright (C) 2017
