@@ -27,7 +27,7 @@ class eemail {
                 if ($rs !== true) {
                     return eemail::wp_mail_native($to, $subject, $message, $headers, $attachments, $rs);
                 }
-                return true;
+                return $rs;
             } catch (Exception $e) {
                 return eemail::wp_mail_native($to, $subject, $message, $headers, $attachments, $e->getMessage());
             }
@@ -130,22 +130,19 @@ class eemail {
             $to = array_merge(explode(',', $to), $bcc);
         }
 
-        $bodyText = "";
-        $bodyHTML = "";
-        if (strtolower($content_type) === 'text/html') {
-            $bodyHTML = $message;
-        } else {
-            $bodyText = $message;
-        }
-
         $from_email = apply_filters('wp_mail_from', $from_email);
         $from_name = apply_filters('wp_mail_from_name', $from_name);
         $content_type = apply_filters('wp_mail_content_type', $content_type);
         $charset = apply_filters('wp_mail_charset', $charset);
 
         $Email = new \ElasticEmailClient\Email();
+        $emailsend = $Email->Send($subject, $from_email, $from_name, null, null, null, null, $reply_to, $reply_to_name, array(), $to, $cc, $bcc, array(), array(), null, null /* channel */, $message, /* $bodyText */ null, $charset, null, null, ApiTypes\EncodingType::None, null, $attachments, $headers);
 
-        return $Email->Send($subject, $from_email, $from_name, null, null, null, null, $reply_to, $reply_to_name, array(), $to, $cc, $bcc, array(), array(), null, null /* channel */, $bodyHTML, $bodyText, $charset, null, null, ApiTypes\EncodingType::None, null, $attachments, $headers);
+        if (isset($emailsend) === TRUE) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static function wp_mail_native($to, $subject, $message, $headers, $attachments, $error) {

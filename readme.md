@@ -1,4 +1,4 @@
-![alt screenshot](assets/banner-772x250.png)
+![alt screenshot](assets/sender_header.png)
 
 # Elastic Email Sender
 
@@ -67,8 +67,21 @@ All the data about your delivery statuses and campaigns stats are available in R
 You can see your reports and sending history in Reports/Email logs. Keep in mind that logs older than 35 days are not stored. [account](https://elasticemail.com/account/#/reports/emails).
 
 ## Versioning
-1.0.1 Bugfix in sending html and text messages.
-1.0 Public release
+
+###### 1.0.3
+* Bugfix - returning false
+
+###### 1.0.2
+* Added reports panel
+* Added checking the status and limit of the account
+* Performance improvement
+* Bugfix
+
+###### 1.0.1
+* Bugfix in sending html and text messages.
+
+###### 1.0
+* Public release
 
 ## Authors
 Elastic Email Inc.

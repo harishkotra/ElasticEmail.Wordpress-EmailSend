@@ -2,9 +2,11 @@
 
 /*
   Plugin Name: Elastic Email Sender
-  Plugin URI: https://github.com/ElasticEmail/ElasticEmail.Wordpress-EmailSend
+  Plugin URI: https://wordpress.org/plugins/elastic-email-sender/
   Description: This plugin reconfigures the wp_mail() function to send email using REST API (via Elastic Email) instead of SMTP and creates an options page that allows you to specify various options.
-  Version: 1.0.1
+  Author: Elastic Email
+  Author URI: https://elasticemail.com
+  Version: 1.0.3
   License: GPLv2 or later
   Elastic Email Inc. for WordPress
   Copyright (C) 2017
@@ -23,10 +25,13 @@ eemail::on_load(__DIR__);
 
 /* ----------- ADMIN ----------- */
 if (is_admin()) {
+
     function deactivate() {
         delete_option('ee_options');
     }
+
     register_deactivation_hook(__FILE__, 'deactivate');
     require_once 'class/eeadmin.php';
     $ee_admin = new eeadmin(__DIR__);
 }
+

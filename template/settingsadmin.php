@@ -22,6 +22,7 @@ if (isset($_GET['settings-updated'])):
             Just one quick step and you will be ready to rock your subscribers' inbox.<br/><br/>
             Fill in the details about the main configuration of Elastic Email connections.
         </h4>
+
         <form method="post" action="options.php">
             <?php
             settings_fields('ee_option_group');
@@ -34,6 +35,59 @@ if (isset($_GET['settings-updated'])):
                         <td> <span class="<?= (empty($error) === true) ? 'ee_success' : 'ee_error' ?>">
                                 <?= (empty($error) === true) ? 'Connected' : 'Connection error, check your API key. <a href="https://elasticemail.com/support/user-interface/settings/smtp-api/" target="_blank">Read more</a' ?>
                             </span></td>
+                    </tr>
+                    <tr valign="top">
+                        <th scope="row">Account status:</th>
+                        <td>
+                            <?php
+                            if (isset($accountstatus)) {
+                                if ($accountstatus === 1) {
+                                    $accountstatusname = '<span class="account-status-active">Active</span>';
+                                } else {
+                                    $accountstatusname = '<span class="account-status-deactive">Please conect to Elastic Email API or complete the profile <a href="https://elasticemail.com/account/#/account/profile"> Complete your profile </a> or connect to Elastic Email API to start using the plugin.</span>';
+                                }
+                            } else {
+                                $accountstatusname = '<span class="account-status-deactive">Please conect to Elastic Email API or complete the profile <a href="https://elasticemail.com/account/#/account/profile"> Complete your profile </a> or connect to Elastic Email API to start using the plugin.</span>';
+                            }
+                            echo $accountstatusname;
+                            ?>
+                        </td>
+                    </tr>
+
+                    <tr valign="top">
+                        <th scope="row">Account limit:</th>
+                        <td>
+                            <?php
+                            if (isset($accountdailysendlimit)) {
+                                if ($accountdailysendlimit < 5) {
+                                    $accountlimitspan = '<span class="ok-account">No limit</span>';
+                                    $tooltip = 'Lucky you! Your account has no daily limits! Check out our other <a href="http://elasticemail.com/pricing"> pricing plans </a> and discover unlimited possibilities of your account.</a>';
+                                } else {
+                                    if ($accountdailysendlimit <= 50 && $accountdailysendlimit > 5) {
+                                        $accountlimitspan = '<span class="standard-account">5</span>';
+                                        $tooltip = 'Oops! Seems that your daily limit exceeded. Fill out your profile to get unlimited possibilities.';
+                                    } else {
+                                        if ($accountdailysendlimit <= 5000) {
+                                            $accountlimitspan = '<span class="standard-account">5 000</span>';
+                                            $tooltip = 'Your account is limited to 5,000 free emails per day. Check out our <a href="http://elasticemail.com/pricing"> pricing plans </a> and take your campaigns to the next level!</a>';
+                                        }
+                                    }
+                                }
+                            } else {
+                                $accountlimit = '';
+                                $accountlimitspan = '-------';
+                                $tooltip = 'Seems that you might have some limits on your account. Please check out your account settings to unlock more options.';
+                            }
+
+                            echo $accountlimitspan;
+                            ?>
+
+                            <div class="tooltip"><?php echo '<img class="tootlip-icon" src="' . esc_url(plugins_url('/assets/images/info.svg', dirname(__FILE__))) . '" > ' ?>
+                                <span class="tooltiptext">
+                                    <?php echo $tooltip; ?>
+                                </span>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

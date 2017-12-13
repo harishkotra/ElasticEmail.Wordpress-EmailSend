@@ -31,11 +31,13 @@ class eeadmin {
     public function add_menu() {
         add_action('admin_enqueue_scripts', array($this, 'custom_admin_scripts'));
         add_menu_page('Elastic Email Sender', 'Elastic Email Sender', 'manage_options', 'elasticemail-settings', array($this, 'show_settings'), plugins_url('/assets/images/icon.png', dirname(__FILE__)));
+        add_submenu_page('elasticemail-settings', 'Reports', 'Reports', 'manage_options', 'elasticemail-reports', array($this, 'show_reports'));
     }
 
     //Added custom admin scripts
     public function custom_admin_scripts() {
-        wp_enqueue_style('eesender-css', plugins_url('/assets/css/admin.css', dirname(__FILE__)), array(), null, 'all');
+        wp_enqueue_style('eesender-css', plugins_url('/assets/css/ees_admin.css', dirname(__FILE__)), array(), null, 'all');
+        wp_enqueue_script('eesender-chart-scropt', plugins_url('/assets/js/chart.min.js', dirname(__FILE__)), array('jquery'));
     }
 
     //Load Elastic Email settings
@@ -49,14 +51,27 @@ class eeadmin {
             $error = $e->getMessage();
             $account = array();
         }
-        //Loads the settings template
+
+        $accountstatus = '';
+        if (isset($account['data']['statusnumber'])) {
+            if ($account['data']['statusnumber'] > 0) {
+                $accountstatus = $account['data']['statusnumber'];
+            } else {
+                $accountstatus = 'Please conect to Elastic Email API';
+            }
+        }
+
+        $accountdailysendlimit = '';
+        if (isset($account['data']['actualdailysendlimit'])) {
+            $accountdailysendlimit = $account['data']['actualdailysendlimit'];
+        }
+
         require_once ($this->theme_path . '/template/settingsadmin.php');
         return;
     }
 
     //Initialization Elastic Email API
     public function initAPI() {
-
         if ($this->initAPI === true) {
             return;
         }
@@ -66,6 +81,51 @@ class eeadmin {
             \ElasticEmailClient\ApiClient::SetApiKey($this->options['ee_apikey']);
         }
         $this->initAPI = true;
+    }
+
+    public function show_reports() {
+        $this->initAPI();
+
+        if (isset($_POST['daterange'])) {
+            $daterangeselect = $_POST['daterange'];
+            if ($daterangeselect === 'last-mth') {
+                $from = date('c', strtotime('-30 days'));
+                $to = date('c');
+            }
+            if ($daterangeselect === 'last-wk') {
+                $from = date('c', strtotime('-7 days'));
+                $to = date('c');
+            }
+            if ($daterangeselect === 'last-2wk') {
+                $from = date('c', strtotime('-14 days'));
+                $to = date('c');
+            }
+        } else {
+            $from = date('c', strtotime('-30 days'));
+            $to = date('c');
+        }
+
+        $channelName = null;
+        $interval = null;
+        $transactionID = null;
+
+        try {
+            $LogAPI = new \ElasticEmailClient\Log();
+            $error = null;
+            $LogAPI_json = $LogAPI->Summary($from, $to, $channelName, $interval, $transactionID);
+            $total = $LogAPI_json['data']['logstatussummary']['emailtotal'];
+            $delivered = $LogAPI_json['data']['logstatussummary']['delivered'];
+            $opened = $LogAPI_json['data']['logstatussummary']['opened'];
+            $bounced = $LogAPI_json['data']['logstatussummary']['bounced'];
+            $clicked = $LogAPI_json['data']['logstatussummary']['clicked'];
+            $unsubscribed = $LogAPI_json['data']['logstatussummary']['unsubscribed'];
+        } catch (ElasticEmailClient\ApiException $e) {
+            $error = $e->getMessage();
+            $LogList = array();
+        }
+        //Loads the settings template
+        require_once ($this->theme_path . '/template/reports.php');
+        return;
     }
 
     //Initialization custom options
