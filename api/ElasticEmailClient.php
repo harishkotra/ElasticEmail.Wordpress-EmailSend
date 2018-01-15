@@ -54,16 +54,16 @@ class ApiClient {
                     'content-type' => 'multipart/form-data; boundary=' . self::$boundary
                 ),
                 'body' => implode("", self::$postbody)));
-
-            if ($response['response']['code'] !== 200) {
-                return "Code Error: " . $response['response']['code'];
-            }
-
-            $jsonresponse = json_decode($response['body'], true);
-            if ($jsonresponse['success'] === true) {
-                return $jsonresponse;
-            } else {
-                return false;
+            if (!is_wp_error($response)) {
+                if ($response['response']['code'] !== 200) {
+                    return "Code Error: " . $response['response']['code'];
+                }
+                $jsonresponse = json_decode($response['body'], true);
+                if ($jsonresponse['success'] === true) {
+                    return $jsonresponse;
+                } else {
+                    return false;
+                }
             }
         } catch (Exception $e) {
             return $e->getMessage();

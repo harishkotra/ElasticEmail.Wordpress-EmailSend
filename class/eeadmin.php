@@ -63,7 +63,7 @@ class eeadmin {
 
         $accountdailysendlimit = '';
         if (isset($account['data']['actualdailysendlimit'])) {
-            $accountdailysendlimit = $account['data']['actualdailysendlimit'];
+                $accountdailysendlimit=$account['data']['actualdailysendlimit'];
         }
 
         require_once ($this->theme_path . '/template/settingsadmin.php');
