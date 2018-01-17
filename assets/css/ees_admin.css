@@ -49,6 +49,8 @@
 .eewp_container {
     height: 100%;
     padding-top: 35px;
+    padding-left: 28px;
+    padding-right: 28px;
 }
 #eewp_plugin .ee_pagetitle {
     padding: 0 0 2% 0;

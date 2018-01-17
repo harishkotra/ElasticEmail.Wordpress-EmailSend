@@ -4,7 +4,7 @@ defined('EE_ADMIN') OR die('No direct access allowed.');
 if (isset($_GET['settings-updated'])):
     ?>
     <div id="message" class="updated">
-        <p><strong><?php _e('Settings saved.') ?></strong></p>
+        <p><strong><?php _e('Settings saved.', 'elastic-email-sender') ?></strong></p>
     </div>
 <?php endif; ?>
 <div id="eewp_plugin" class="ee_row eewp_container">
@@ -17,19 +17,19 @@ if (isset($_GET['settings-updated'])):
             if (isset($_POST['daterange'])) {
                 $daterangeselect = $_POST['daterange'];
                 if ($daterangeselect === 'last-mth') {
-                    $datarangename = ' - last month';
+                    $datarangename = __(' - last month', 'elastic-email-sender');
                 }
                 if ($daterangeselect === 'last-wk') {
-                    $datarangename = ' - last week';
+                    $datarangename = __(' - last week', 'elastic-email-sender');
                 }
                 if ($daterangeselect === 'last-2wk') {
-                    $datarangename = ' - last two weeks';
+                    $datarangename = __(' - last two weeks', 'elastic-email-sender');
                 }
             } else {
                 if ((empty($total) === true || $total === 0)) {
                     $datarangename = '';
                 } else {
-                    $datarangename = ' - last month';
+                    $datarangename = __(' - last month', 'elastic-email-sender');
                 }
             }
             ?>
@@ -46,7 +46,7 @@ if (isset($_GET['settings-updated'])):
             $bounced = '<span class="ee_default-text">' . 4000 . '</span>';
             $clicked = '<span class="ee_default-text">' . 95000 . '</span>';
             $unsubscribed = '<span class="ee_default-text">' . 4000 . '</span>';
-            $info = '<div class="ee_connect-alert"><h1>Please note, that the data below is an example. Send your first campaign, to get the real statistics.</h1></div>';
+            $info = '<div class="ee_connect-alert"><h1>'.__('Please note, that the data below is an example. Send your first campaign, to get the real statistics.', 'elastic-email-sender').'</h1></div>';
         }
 
         if ((empty($error)) === TRUE) {
@@ -56,10 +56,10 @@ if (isset($_GET['settings-updated'])):
                 <form name="form" id="daterange" action="" method="post">
                     Date range:
                     <select id="daterange-select" name="daterange" onchange="this.form.submit()">
-                        <option>Select data range</option>
-                        <option value="last-mth">Last month</option>
-                        <option value="last-wk">Last week</option>
-                        <option value="last-2wk">Last two weeks</option>
+                        <option><?php _e('Select data range', 'elastic-email-sender')?></option>
+                        <option value="last-mth"><?php _e('Last month', 'elastic-email-sender')?></option>
+                        <option value="last-wk"><?php _e('Last week', 'elastic-email-sender')?></option>
+                        <option value="last-2wk"><?php _e('Last two weeks', 'elastic-email-sender')?></option>
                     </select>
                 </form>
             </div>
@@ -73,12 +73,12 @@ if (isset($_GET['settings-updated'])):
                 <table class="ee_report-table" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th style="background: rgba(102, 163, 163, 0.2);">Submitted</th>
-                            <th style="background: rgba(0, 153, 255, 0.2);">Delivered</th>
-                            <th style="background: rgba(0, 128, 0, 0.2);">Opened</th>
-                            <th style="background: rgba(255, 159, 64, 0.2);">Clicked</th>
-                            <th style="background: rgba(255, 162, 0, 0.2);">Unsubscribed</th>
-                            <th style="background: rgba(255, 0, 0, 0.2);">Bounced</th>
+                            <th style="background: rgba(102, 163, 163, 0.2);"><?php _e('Submitted', 'elastic-email-sender')?></th>
+                            <th style="background: rgba(0, 153, 255, 0.2);"><?php _e('Delivered', 'elastic-email-sender')?></th>
+                            <th style="background: rgba(0, 128, 0, 0.2);"><?php _e('Opened', 'elastic-email-sender')?></th>
+                            <th style="background: rgba(255, 159, 64, 0.2);"><?php _e('Clicked', 'elastic-email-sender')?></th>
+                            <th style="background: rgba(255, 162, 0, 0.2);"><?php _e('Unsubscribed', 'elastic-email-sender')?></th>
+                            <th style="background: rgba(255, 0, 0, 0.2);"><?php _e('Bounced', 'elastic-email-sender')?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,7 +102,7 @@ if (isset($_GET['settings-updated'])):
                         var config = {
                             type: 'doughnut',
                             data: {
-                                labels: ["Delivered", "Opened", "Clicked", "Unsubscribed", "Bounced"],
+                                labels: ["<?php _e('Delivered', 'elastic-email-sender')?>", "<?php _e('Opened', 'elastic-email-sender')?>", "<?php _e('Clicked', 'elastic-email-sender')?>", "<?php _e('Unsubscribed', 'elastic-email-sender')?>", "<?php _e('Bounced', 'elastic-email-sender')?>"],
                                 datasets: [{
                                         label: '# of Votes',
                                         data: [
@@ -177,7 +177,7 @@ if (isset($_GET['settings-updated'])):
                 </div>
                 <div class="ee_connect-alert">
                     <h1>
-                        Oops! Your Elastic Email account has not been connected. Configure the settings to start using the plugin.
+                        <?php _e('Oops! Your Elastic Email account has not been connected. Configure the settings to start using the plugin.', 'elastic-email-sender')?>
                     </h1>
                 </div>
             </div>
@@ -187,14 +187,15 @@ if (isset($_GET['settings-updated'])):
     </div> 
 
 
-    <div class="ee_col-5 ee_marketing">
-        <h2 class="ee_h2">Let us help you send better emails!</h2>
+     <div class="ee_col-5 ee_marketing">
+        <h2 class="ee_h2"><?php _e('Let us help you send better emails!', 'elastic-email-sender')?></h2>
         <h4 class="ee_footertext">
-            If you are new to Elastic Email, feel free to visit our <a href="https://elasticemail.com">website</a> and find out how our comprehensive set of tools will help you reach your goals or get premium email marketing tools at a fraction of what you're paying now!
+            <?php _e('If you are new to Elastic Email, feel free to visit our <a href="https://elasticemail.com">website</a> and find out how our comprehensive set of tools will help you reach your goals or get premium email marketing tools at a fraction of what you\'re paying now!', 'elastic-email-sender')?>
         </h4>
         <hr>
-        <h4 class="ee_h4">If you already use Elastic Email to send your emails, you can subscribe to our monthly updates to start receiving the latest email news, tips, best practices and more.</h4>
-        <?php if (isset($_GET['subscribe']) === false) { ?>
+        <h4 class = "ee_h4"><?php _e('If you already use Elastic Email to send your emails, you can subscribe to our monthly updates to start receiving the latest email news, tips, best practices and more.', 'elastic-email-sender')?></h4>
+        <?php if (isset($_GET['subscribe']) === false) {
+            ?>
             <form action="https://api.elasticemail.com/contact/add?version=2" method="post">
                 <fieldset style="border:none;">
                     <input type="hidden" name="publicaccountid" value="49540e0f-2e09-4101-a05d-5032842b99d3">
@@ -203,15 +204,15 @@ if (isset($_GET['settings-updated'])):
                     <input type="hidden" name="activationTemplate" value="Subscription_from_blog">
                     <input type="hidden" name="source" value="WebForm">
                     <input type="hidden" name="notifyEmail" value="">
-                    <div class="inputs">
-                        <span id="email" style="width: 100%;">
-                            <label for="email" style="padding-right: 5px;">Email Address</label>
-                            <input maxlength="40" class="form-control" name="email" size="20" type="email" required="" style="width: 60%;"> 
+                    <div class="ee_inputs">
+                        <span id="ee_email" style="width: 100%;">
+                            <label for="email" style="padding-right: 5px;"><?php _e('Email Address', 'elastic-email-sender')?></label>
+                            <input maxlength="40" class="ee_form-control" name="email" size="20" type="email" required="" style="width: 60%;"> 
                         </span>
                         <br/><br/>
-                        <span id="field_firstname" style="width: 100%;">
-                            <label for="field_firstname" style="padding-right: 51px;">Name</label>
-                            <input maxlength="40" class="form-control" name="field_firstname" size="20" type="string" style="width: 60%;">
+                        <span id="ee_field_firstname" style="width: 100%;">
+                            <label for="field_firstname" style="padding-right: 51px;"><?php _e('Name', 'elastic-email-sender')?></label>
+                            <input maxlength="40" class="ee_form-control" name="field_firstname" size="20" type="string" style="width: 60%;">
                         </span>
                         <br/>
                         <br/>
@@ -220,29 +221,36 @@ if (isset($_GET['settings-updated'])):
                     <ul class="ee_lists" style="list-style:none;display:none;">
                         <li>
                             <input type="checkbox" name="publiclistid" id="AWMifhLm" value="7db916f4-9a46-4655-be56-ec781bd74968" checked="checked">
-                            <label class="publiclistlabel" for="AWMifhLm">Subscription_from_blog</label>
+                            <label class="ee_publiclistlabel" for="AWMifhLm">Subscription_from_blog</label>
                         </li>
                     </ul>
-                    <input type="submit" name="submit" value="Subscribe">
+                    <input type="submit" name="submit" value="<?php _e('Subscribe', 'elastic-email-sender')?>">
                 </fieldset>
             </form>
             <?php
         } else {
-            echo '<h3 style="color: green; font: bold;">Thank you for subscribing to our newsletter!</h3>
-            <h5 style="color: green;">You will start receiving our email marketing newsletter, as soon as you confirm your subscription.</h5>';
+            echo '<h3 style="color: green; font: bold; font-size:22px;">' . __('Thank you for subscribing to our newsletter!', 'elastic-email-sender') .'</h3>
+            <h5 style="color: green;">' . __('You will start receiving our email marketing newsletter, as soon as you confirm your subscription.', 'elastic-email-sender').'</h5>';
         }
         ?>
         <br/>
         <hr>
         <br/>
-        <h2 class="ee_h2">How we can help you?</h2>
-        <h4 class="ee_h4">If you would like to boost your email marketing campaigns or improve your email delivery, check out our helpful guides to get you started!</h4>        
+        <h2 class="ee_h2"><?php _e('How we can help you?', 'elastic-email-sender')?></h2>
+        <h4 class="ee_h4"><?php _e('If you would like to boost your email marketing campaigns or improve your email delivery, check out our helpful guides to get you started!', 'elastic-email-sender')?></h4>
         <ul style="padding-left: 40px;">
-            <li type="circle"><a href="https://elasticemail.com/support/">Guides and resources</a></li>
-            <li type="circle"><a href="https://elasticemail.com/api-documentation-and-libraries/">Looking for code? Check our API</a></li>
-            <li type="circle"><a href="https://elasticemail.com/contact/">Want to talk with a live person? Contact us</a></li>
+            <li type="circle"><a href="https://elasticemail.com/support/"><?php _e('Guides and resources', 'elastic-email-sender')?></a></li>
+            <li type="circle"><a href="https://elasticemail.com/api-documentation-and-libraries/"><?php _e('Looking for code? Check our API', 'elastic-email-sender')?></a></li>
+            <li type="circle"><a href="https://elasticemail.com/contact/"><?php _e('Want to talk with a live person? Contact us', 'elastic-email-sender')?></a></li>
         </ul>
         <br/>
-        <h4 class="ee_h4">Remember that in case of any other questions or feedback, you can always contact our friendly <a href="http://support.elasticemail.com/">Support Team.</a></h4>
+        <h4 class="ee_h4"><?php _e('Remember that in case of any other questions or feedback, you can always contact our friendly <a href="http://support.elasticemail.com/">Support Team.</a>', 'elastic-email-sender')?></h4>
+    </div>
+    <div class="ee_col-12">
+        <div class="ee_footer">
+            <h4 class="ee_h4footer">
+                <?php _e('Share your experience of using Elastic Email WordPress Plugin by <a href="https://wordpress.org/support/plugin/elastic-email-sender/reviews/#new-post">rating us here.</a> Thanks!', 'elastic-email-sender')?>
+            </h4>
+        </div>
     </div>
 </div>

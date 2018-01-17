@@ -67,6 +67,10 @@ All the data about your delivery statuses and campaigns stats are available in R
 You can see your reports and sending history in Reports/Email logs. Keep in mind that logs older than 35 days are not stored. [account](https://elasticemail.com/account/#/reports/emails).
 
 ## Versioning
+
+###### 1.0.7
+* Internationalization
+
 ###### 1.0.6
 * Isolating styles in admin
 * Checking account limite

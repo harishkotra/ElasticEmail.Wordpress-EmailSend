@@ -24,14 +24,19 @@ class eeadmin {
         $this->theme_path = $pluginpath;
         add_action('admin_menu', array($this, 'add_menu'));
         add_action('admin_init', array($this, 'init_options'));
+        add_action('plugins_loaded', array($this, 'eesender_load_textdomain'));
         $this->options = get_option('ee_options', $this->defaultOptions);
+    }
+
+    public function eesender_load_textdomain() {
+        load_plugin_textdomain('elastic-email-sender', false, basename(dirname(__FILE__)) . '/languages');
     }
 
     //Added admin menu
     public function add_menu() {
         add_action('admin_enqueue_scripts', array($this, 'custom_admin_scripts'));
         add_menu_page('Elastic Email Sender', 'Elastic Email Sender', 'manage_options', 'elasticemail-settings', array($this, 'show_settings'), plugins_url('/assets/images/icon.png', dirname(__FILE__)));
-        add_submenu_page('elasticemail-settings', 'Reports', 'Reports', 'manage_options', 'elasticemail-reports', array($this, 'show_reports'));
+        add_submenu_page('elasticemail-settings', 'Reports', __('Reports', 'elastic-email-sender'), 'manage_options', 'elasticemail-reports', array($this, 'show_reports'));
     }
 
     //Added custom admin scripts
@@ -63,7 +68,7 @@ class eeadmin {
 
         $accountdailysendlimit = '';
         if (isset($account['data']['actualdailysendlimit'])) {
-                $accountdailysendlimit=$account['data']['actualdailysendlimit'];
+            $accountdailysendlimit = $account['data']['actualdailysendlimit'];
         }
 
         require_once ($this->theme_path . '/template/settingsadmin.php');
@@ -180,8 +185,8 @@ class eeadmin {
             $valuel = $this->options[$arg['input_name']];
         }
 
-        echo'<div style="margin-bottom:15px;"><label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="yes" ' . (($valuel === 'yes') ? 'checked' : '') . '/><span>Send all WordPress emails via Elastic Email API.</span><label></div>';
-        echo'<label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="no"  ' . (($valuel === 'no') ? 'checked' : '') . '/><span>Use the defaults Wordpress function to send emails.</span><label>';
+        echo'<div style="margin-bottom:15px;"><label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="yes" ' . (($valuel === 'yes') ? 'checked' : '') . '/><span>'. __('Send all WordPress emails via Elastic Email API.', 'elastic-email-sender').'</span><label></div>';
+        echo'<label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="no"  ' . (($valuel === 'no') ? 'checked' : '') . '/><span>'. __('Use the defaults Wordpress function to send emails.', 'elastic-email-sender').'</span><label>';
     }
 
 }

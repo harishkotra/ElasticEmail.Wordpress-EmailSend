@@ -1,0 +1,257 @@
+# Translation of Plugins - Elastic Email Sender - Development (trunk) in Polish
+# This file is distributed under the same license as the Plugins - Elastic Email Sender - Development (trunk) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: +0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: pl\n"
+"Project-Id-Version: Plugins - Elastic Email Sender - Development (trunk)\n"
+
+#. Author URI of the plugin/theme
+msgid "https://elasticemail.com"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Elastic Email"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "This plugin reconfigures the wp_mail() function to send email using REST API (via Elastic Email) instead of SMTP and creates an options page that allows you to specify various options."
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://wordpress.org/plugins/elastic-email-sender/"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Elastic Email Sender"
+msgstr ""
+
+#: template/settingsadmin.php:111
+msgid "Want to use this plugin in a different language version? <a href=\"http://support.elasticemail.com/\"> Let us know or help us translate it!</a>"
+msgstr ""
+
+#: template/settingsadmin.php:106
+msgid ""
+"Do not have an account yet? <a href=\"https://elasticemail.com/account#/create-account\" target=\"_blank\" title=\"First 1000 emails for free.\">Create your account now</a>!<br/>\n"
+"            <a href=\"http://elasticemail.com/transactional-email\" target=\"_blank\"> Tell me more about it</a>"
+msgstr ""
+
+#: template/settingsadmin.php:84 template/settingsadmin.php:89
+msgid "Seems that you might have some limits on your account. Please check out your account settings to unlock more options."
+msgstr ""
+
+#: template/settingsadmin.php:80
+msgid "Your account has a custom limit: "
+msgstr ""
+
+#: template/settingsadmin.php:79
+msgid "Custom: "
+msgstr ""
+
+#: template/settingsadmin.php:76
+msgid "Your account is limited to 5,000 free emails per day. Check out our"
+msgstr ""
+
+#: template/settingsadmin.php:72
+msgid "Ups! It seems your your limit is 50. Fill out your profile to get unlimited possibilities."
+msgstr ""
+
+#: template/settingsadmin.php:68
+msgid "Oops! It seems your limit is 5. Fill out your profile to get unlimited possibilities."
+msgstr ""
+
+#: template/settingsadmin.php:64
+msgid "Lucky you! Your account has no daily limits! Check out our other"
+msgstr ""
+
+#: template/settingsadmin.php:63
+msgid "No limits"
+msgstr ""
+
+#: template/settingsadmin.php:58
+msgid "Account daily limit:"
+msgstr ""
+
+#: template/settingsadmin.php:47 template/settingsadmin.php:50
+msgid "Complete your profile </a> or connect to Elastic Email API to start using the plugin."
+msgstr ""
+
+#: template/settingsadmin.php:47 template/settingsadmin.php:50
+msgid "Please conect to Elastic Email API or complete the profile"
+msgstr ""
+
+#: template/settingsadmin.php:45
+msgid "Active"
+msgstr ""
+
+#: template/settingsadmin.php:40
+msgid "Account status:"
+msgstr ""
+
+#: template/settingsadmin.php:36
+msgid "Read more"
+msgstr ""
+
+#: template/settingsadmin.php:36
+msgid "Connection error, check your API key. "
+msgstr ""
+
+#: template/settingsadmin.php:36
+msgid "Connected"
+msgstr ""
+
+#: template/settingsadmin.php:34
+msgid "Connection Test:"
+msgstr ""
+
+#: template/settingsadmin.php:21
+msgid ""
+"Welcome to Elastic Email WordPress Plugin!<br/> From now on, you can send your emails in the fastest and most reliable way!<br/>\n"
+"            Just one quick step and you will be ready to rock your subscribers' inbox.<br/><br/>\n"
+"            Fill in the details about the main configuration of Elastic Email connections."
+msgstr ""
+
+#: template/settingsadmin.php:17
+msgid "General Settings"
+msgstr ""
+
+#: template/reports.php:252 template/settingsadmin.php:176
+msgid "Share your experience of using Elastic Email WordPress Plugin by <a href=\"https://wordpress.org/support/plugin/elastic-email-sender/reviews/#new-post\">rating us here.</a> Thanks!"
+msgstr ""
+
+#: template/reports.php:247 template/settingsadmin.php:171
+msgid "Remember that in case of any other questions or feedback, you can always contact our friendly <a href=\"http://support.elasticemail.com/\">Support Team.</a>"
+msgstr ""
+
+#: template/reports.php:244 template/settingsadmin.php:168
+msgid "Want to talk with a live person? Contact us"
+msgstr ""
+
+#: template/reports.php:243 template/settingsadmin.php:167
+msgid "Looking for code? Check our API"
+msgstr ""
+
+#: template/reports.php:242 template/settingsadmin.php:166
+msgid "Guides and resources"
+msgstr ""
+
+#: template/reports.php:240 template/settingsadmin.php:164
+msgid "If you would like to boost your email marketing campaigns or improve your email delivery, check out our helpful guides to get you started!"
+msgstr ""
+
+#: template/reports.php:239 template/settingsadmin.php:163
+msgid "How we can help you?"
+msgstr ""
+
+#: template/reports.php:233 template/settingsadmin.php:157
+msgid "You will start receiving our email marketing newsletter, as soon as you confirm your subscription."
+msgstr ""
+
+#: template/reports.php:232 template/settingsadmin.php:156
+msgid "Thank you for subscribing to our newsletter!"
+msgstr ""
+
+#: template/reports.php:227 template/settingsadmin.php:151
+msgid "Subscribe"
+msgstr ""
+
+#: template/reports.php:214 template/settingsadmin.php:138
+msgid "Name"
+msgstr ""
+
+#: template/reports.php:209 template/settingsadmin.php:133
+msgid "Email Address"
+msgstr ""
+
+#: template/reports.php:196 template/settingsadmin.php:120
+msgid "If you already use Elastic Email to send your emails, you can subscribe to our monthly updates to start receiving the latest email news, tips, best practices and more."
+msgstr ""
+
+#: template/reports.php:193 template/settingsadmin.php:117
+msgid "If you are new to Elastic Email, feel free to visit our <a href=\"https://elasticemail.com\">website</a> and find out how our comprehensive set of tools will help you reach your goals or get premium email marketing tools at a fraction of what you're paying now!"
+msgstr ""
+
+#: template/reports.php:191 template/settingsadmin.php:115
+msgid "Let us help you send better emails!"
+msgstr ""
+
+#: template/reports.php:180
+msgid "Oops! Your Elastic Email account has not been connected. Configure the settings to start using the plugin."
+msgstr ""
+
+#: template/reports.php:81 template/reports.php:105
+msgid "Bounced"
+msgstr ""
+
+#: template/reports.php:80 template/reports.php:105
+msgid "Unsubscribed"
+msgstr ""
+
+#: template/reports.php:79 template/reports.php:105
+msgid "Clicked"
+msgstr ""
+
+#: template/reports.php:78 template/reports.php:105
+msgid "Opened"
+msgstr ""
+
+#: template/reports.php:77 template/reports.php:105
+msgid "Delivered"
+msgstr ""
+
+#: template/reports.php:76
+msgid "Submitted"
+msgstr ""
+
+#: template/reports.php:62
+msgid "Last two weeks"
+msgstr ""
+
+#: template/reports.php:61
+msgid "Last week"
+msgstr ""
+
+#: template/reports.php:60
+msgid "Last month"
+msgstr ""
+
+#: template/reports.php:59
+msgid "Select data range"
+msgstr ""
+
+#: template/reports.php:49
+msgid "Please note, that the data below is an example. Send your first campaign, to get the real statistics."
+msgstr ""
+
+#: template/reports.php:26
+msgid " - last two weeks"
+msgstr ""
+
+#: template/reports.php:23
+msgid " - last week"
+msgstr ""
+
+#: template/reports.php:20 template/reports.php:32
+msgid " - last month"
+msgstr ""
+
+#: template/reports.php:7 template/settingsadmin.php:7
+msgid "Settings saved."
+msgstr ""
+
+#: class/eeadmin.php:189
+msgid "Use the defaults Wordpress function to send emails."
+msgstr ""
+
+#: class/eeadmin.php:188
+msgid "Send all WordPress emails via Elastic Email API."
+msgstr ""
+
+#: class/eeadmin.php:39
+msgid "Reports"
+msgstr ""
