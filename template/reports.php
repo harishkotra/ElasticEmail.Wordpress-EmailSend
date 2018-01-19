@@ -1,6 +1,6 @@
 <?php
 defined('EE_ADMIN') OR die('No direct access allowed.');
-
+wp_enqueue_script('eesender-chart-scropt', plugins_url('/assets/js/chart.min.js', dirname(__FILE__)), array('jquery'));
 if (isset($_GET['settings-updated'])):
     ?>
     <div id="message" class="updated">

@@ -42,7 +42,7 @@ class eeadmin {
     //Added custom admin scripts
     public function custom_admin_scripts() {
         wp_enqueue_style('eesender-css', plugins_url('/assets/css/ees_admin.css', dirname(__FILE__)), array(), null, 'all');
-        wp_enqueue_script('eesender-chart-scropt', plugins_url('/assets/js/chart.min.js', dirname(__FILE__)), array('jquery'));
+        
     }
 
     //Load Elastic Email settings
