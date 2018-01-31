@@ -14,13 +14,15 @@ class eeadmin {
      */
     private $defaultOptions = array('ee_enable' => 'no', 'ee_apikey' => null),
             $options,
-            $initAPI = false;
+            $initAPI = false,
+            $subscribe_status = false;
     public $theme_path;
 
     /**
      * Start up
      */
     public function __construct($pluginpath) {
+
         $this->theme_path = $pluginpath;
         add_action('admin_menu', array($this, 'add_menu'));
         add_action('admin_init', array($this, 'init_options'));
@@ -34,15 +36,27 @@ class eeadmin {
 
     //Added admin menu
     public function add_menu() {
+        $this->subscribe_status = get_option('elastic-email-subscriber-status');
         add_action('admin_enqueue_scripts', array($this, 'custom_admin_scripts'));
-        add_menu_page('Elastic Email Sender', 'Elastic Email Sender', 'manage_options', 'elasticemail-settings', array($this, 'show_settings'), plugins_url('/assets/images/icon.png', dirname(__FILE__)));
+
+        if ($this->subscribe_status == true) {
+            $plugin_custom_name = 'Elastic Email Sender & Subscribe Form';
+        } else {
+            $plugin_custom_name = 'Elastic Email Sender';
+        }
+
+        add_menu_page($plugin_custom_name, $plugin_custom_name, 'manage_options', 'elasticemail-settings', array($this, 'show_settings'), plugins_url('/assets/images/icon.png', dirname(__FILE__)));
         add_submenu_page('elasticemail-settings', 'Reports', __('Reports', 'elastic-email-sender'), 'manage_options', 'elasticemail-reports', array($this, 'show_reports'));
+
+        // adds menu after activation 
+        if ($this->subscribe_status == true) {
+            add_submenu_page('elasticemail-settings', 'Widget', __('Widget', 'elastic-email-sender'), 'manage_options', 'elasticemail-widget', array($this, 'show_widget_admin_page'));
+        }
     }
 
     //Added custom admin scripts
     public function custom_admin_scripts() {
         wp_enqueue_style('eesender-css', plugins_url('/assets/css/ees_admin.css', dirname(__FILE__)), array(), null, 'all');
-        
     }
 
     //Load Elastic Email settings
@@ -71,7 +85,41 @@ class eeadmin {
             $accountdailysendlimit = $account['data']['actualdailysendlimit'];
         }
 
-        require_once ($this->theme_path . '/template/settingsadmin.php');
+        require_once ($this->theme_path . '/template/ees_settingsadmin.php');
+        return;
+    }
+
+    public function addNewLists() {
+        $this->initAPI();
+        $newListName = get_option('ee_newListName');
+        $allContacts = true;
+        try {
+            $addListAPI = new \ElasticEmailClient\EEList();
+            $error = null;
+            $addList = $addListAPI->Add($newListName, $allContacts);
+            if (isset($addList['success'])) {
+                if ($addList['success'] == true) {
+                    delete_option('ee_newListName');
+                }
+            }
+        } catch (Exception $ex) {
+            $error = $e->getMessage();
+            $addList = array();
+        }
+    }
+
+    public function show_widget_admin_page() {
+        $this->initAPI();
+        try {
+            $listAPI = new \ElasticEmailClient\EEList();
+            $error = null;
+            $list = $listAPI->EElist();
+        } catch (ElasticEmailClient\ApiException $e) {
+            $error = $e->getMessage();
+            $list = array();
+        }
+
+        require_once ($this->theme_path . '/template/ees_settingswidget.php');
         return;
     }
 
@@ -129,7 +177,7 @@ class eeadmin {
             $LogList = array();
         }
         //Loads the settings template
-        require_once ($this->theme_path . '/template/reports.php');
+        require_once ($this->theme_path . '/template/ees_reports.php');
         return;
     }
 
@@ -145,6 +193,9 @@ class eeadmin {
         //INIT FIELD
         add_settings_field('ee_enable', 'Select mailer:', array($this, 'enable_input'), 'ee-settings', 'setting_section_id', array('input_name' => 'ee_enable'));
         add_settings_field('ee_apikey', 'Elastic Email API Key:', array($this, 'input_apikey'), 'ee-settings', 'setting_section_id', array('input_name' => 'ee_apikey', 'width' => 280));
+
+        //saving the option whether the plugin is active
+        add_option('elastic-email-sender-status', is_plugin_active('ElasticEmailSender/elasticemailsender.php'));
     }
 
     /**
@@ -185,8 +236,8 @@ class eeadmin {
             $valuel = $this->options[$arg['input_name']];
         }
 
-        echo'<div style="margin-bottom:15px;"><label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="yes" ' . (($valuel === 'yes') ? 'checked' : '') . '/><span>'. __('Send all WordPress emails via Elastic Email API.', 'elastic-email-sender').'</span><label></div>';
-        echo'<label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="no"  ' . (($valuel === 'no') ? 'checked' : '') . '/><span>'. __('Use the defaults Wordpress function to send emails.', 'elastic-email-sender').'</span><label>';
+        echo'<div style="margin-bottom:15px;"><label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="yes" ' . (($valuel === 'yes') ? 'checked' : '') . '/><span>' . __('Send all WordPress emails via Elastic Email API.', 'elastic-email-sender') . '</span><label></div>';
+        echo'<label><input type="radio" name="ee_options[' . $arg['input_name'] . ']" value="no"  ' . (($valuel === 'no') ? 'checked' : '') . '/><span>' . __('Use the defaults Wordpress function to send emails.', 'elastic-email-sender') . '</span><label>';
     }
 
 }

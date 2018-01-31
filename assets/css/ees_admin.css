@@ -57,7 +57,9 @@
 }
 #eewp_plugin .ee_marketing {
     padding: 0 3% 0 3%;
-    border-left: 2px solid #e0e0e0;
+}
+#eewp_plugin .ee_line {
+    border-right: 2px solid #e0e0e0;
 }
 #eewp_plugin .ee_marketing hr {
     width: 80%;
@@ -89,6 +91,9 @@
 }
 #eewp_plugin .ee_header {
     position: relative;
+}
+#eewp_plugin .ee_footer {
+    padding-top: 98px;
 }
 #eewp_plugin .ee_logo {
     background: white;
@@ -168,7 +173,6 @@
     display: inline-block;
 }
 
-
 /* tooltip */
 #eewp_plugin .ee_tooltip {
     position: relative;
@@ -210,3 +214,68 @@
 #eewp_plugin .ee_tooltiptext a {
     color: #fff;
 } 
+#eewp_plugin .ee_button {
+    background-color: #fdb106;
+    text-transform: uppercase;
+    border: none;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    min-width: 98px;
+    cursor: pointer;
+    line-height: 0;
+    border-radius: 3px;
+    min-height: 28px;
+}
+#eewp_plugin .ee_deletebtn {
+    background-color: #fd4949;
+}
+#eewp_plugin .ee_checkbox {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+#eewp_plugin .ee_nopadding {
+    padding: 0px;
+}
+#eewp_plugin .ee_namelist {
+    min-height: 128px;
+    padding: 0px 5px 10px 5px; 
+}
+#eewp_plugin .ee_checkboxlist {
+    min-height: 188px;
+    padding: 0px 5px 10px 5px; 
+}
+#eewp_plugin .ee_newilstinput {
+    min-height: 112px;
+    padding: 0px 5px 10px 5px; 
+}
+#eewp_plugin .ee_selectedlist {
+    padding: 0px 5px 10px 5px; 
+}
+#eewp_plugin .ee_chceckboxlist {
+    padding: 4px 5px 4px 5px; 
+}
+#eewp_plugin .ee_buttonpadding {
+    height: 100px;
+    padding: 32px 5px 18px 0px;
+}
+#eewp_plugin .ee_containerfull {
+    width: 100%;
+}
+#eewp_plugin .ee_addetlist-success {
+    color: green;
+    padding-top: 22px;
+    font-weight: bold;
+}
+#eewp_plugin .ee_addetlist-warning {
+    color: orange;
+    padding-top: 22px;
+    font-weight: bold;
+}
+#eewp_plugin .ee_refrestlists {
+    cursor: pointer;
+}

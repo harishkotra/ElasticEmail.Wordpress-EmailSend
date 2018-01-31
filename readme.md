@@ -70,6 +70,7 @@ You can see your reports and sending history in Reports/Email logs. Keep in mind
 
 ###### 1.0.8
 * Bugfix - WP_Bakery conflict
+* Bugfix - WooCommerce: undefined variables
 
 ###### 1.0.7
 * Internationalization
