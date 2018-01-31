@@ -136,6 +136,14 @@ class eemail {
         $charset = apply_filters('wp_mail_charset', $charset);
 
         $Email = new \ElasticEmailClient\Email();
+
+        if (!isset($reply_to)) {
+            $reply_to = '';
+        }
+        if (!isset($reply_to_name)) {
+            $reply_to_name = '';
+        }
+
         $emailsend = $Email->Send($subject, $from_email, $from_name, null, null, null, null, $reply_to, $reply_to_name, array(), $to, $cc, $bcc, array(), array(), null, null /* channel */, $message, /* $bodyText */ null, $charset, null, null, ApiTypes\EncodingType::None, null, $attachments, $headers);
 
         if (isset($emailsend) === TRUE) {
