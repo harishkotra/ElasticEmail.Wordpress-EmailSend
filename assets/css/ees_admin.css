@@ -279,3 +279,10 @@
 #eewp_plugin .ee_refrestlists {
     cursor: pointer;
 }
+#eewp_plugin .ee_colorsetterbox p {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+#eewp_plugin .ee_colorsetter {
+    min-height: 250px;
+}

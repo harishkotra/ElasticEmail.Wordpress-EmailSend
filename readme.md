@@ -68,6 +68,9 @@ You can see your reports and sending history in Reports/Email logs. Keep in mind
 
 ## Versioning
 
+###### 1.0.9
+* Visual changes and adding compatibility with the Elastic Email Subscribe Form
+
 ###### 1.0.8
 * Bugfix - WP_Bakery conflict
 * Bugfix - WooCommerce: undefined variables
