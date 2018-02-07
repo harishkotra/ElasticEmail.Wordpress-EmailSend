@@ -85,6 +85,12 @@ class eeadmin {
             $accountdailysendlimit = $account['data']['actualdailysendlimit'];
         }
 
+        //public account id
+        if (isset($account['data']['publicaccountid'])) {
+            $this->publicid = $account['data']['publicaccountid'];
+            update_option('ee_publicaccountid', $this->publicid);
+        }
+
         require_once ($this->theme_path . '/template/ees_settingsadmin.php');
         return;
     }

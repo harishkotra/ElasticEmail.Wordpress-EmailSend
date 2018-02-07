@@ -7,7 +7,7 @@
  * Description: This plugin reconfigures the wp_mail() function to send email using REST API (via Elastic Email) instead of SMTP and creates an options page that allows you to specify various options.
  * Author: Elastic Email
  * Author URI: https://elasticemail.com
- * Version: 1.0.10
+ * Version: 1.0.11
  * License: GPLv2 or later
  * Elastic Email Inc. for WordPress
  * Copyright (C) 2018
@@ -48,6 +48,7 @@ if (is_admin()) {
 
     function elasticemailsender_uninstall() {
         delete_option('elastic-email-sender-status');
+        delete_option('ee_publicaccountid');
         delete_option('ee_options');
     }
 
