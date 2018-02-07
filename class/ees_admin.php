@@ -36,7 +36,7 @@ class eeadmin {
 
     //Added admin menu
     public function add_menu() {
-        $this->subscribe_status = get_option('elastic-email-subscriber-status');
+        $this->subscribe_status = get_option('elastic-email-subscribe-status');
         add_action('admin_enqueue_scripts', array($this, 'custom_admin_scripts'));
 
         if ($this->subscribe_status == true) {
