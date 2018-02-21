@@ -143,17 +143,16 @@ class eemail {
         if (!isset($reply_to_name)) {
             $reply_to_name = '';
         }
- 
-        $emailsend = $Email->Send($subject, $from_email, $from_name, null, null, null, null, 
-                $reply_to, $reply_to_name, array(), $to, $cc, $bcc, array(), array(), null, 
-                null /* channel */, $message /*bodyHTML*/, /* $bodyText */ $message, $charset, null, null, 
-                ApiTypes\EncodingType::None, null, $attachments, $headers);
 
-        if (isset($emailsend) === TRUE) {
-            return true;
-        } else {
-            return false;
-        }
+        $emailsend = $Email->Send($subject, $from_email, $from_name, null, null, null, null, $reply_to, $reply_to_name, array(), $to, $cc, $bcc, array(), array(), null, null /* channel */, $message /* bodyHTML */, /* $bodyText */ $message, $charset, null, null, ApiTypes\EncodingType::None, null, $attachments, $headers);
+
+        if (isset($emailsend)) {
+            if ($emailsend == TRUE) {
+               return true; 
+            } else {
+                return false;
+            }
+        } 
     }
 
     static function wp_mail_native($to, $subject, $message, $headers, $attachments, $error) {

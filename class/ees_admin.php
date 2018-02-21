@@ -57,6 +57,7 @@ class eeadmin {
     //Added custom admin scripts
     public function custom_admin_scripts() {
         wp_enqueue_style('eesender-css', plugins_url('/assets/css/ees_admin.css', dirname(__FILE__)), array(), null, 'all');
+        wp_enqueue_script('eesender-css', plugins_url('/assets/js/eesenderscripts.js', dirname(__FILE__)));
     }
 
     //Load Elastic Email settings
@@ -80,6 +81,7 @@ class eeadmin {
             }
         }
 
+        //contact daily limits
         $accountdailysendlimit = '';
         if (isset($account['data']['actualdailysendlimit'])) {
             $accountdailysendlimit = $account['data']['actualdailysendlimit'];
@@ -89,6 +91,32 @@ class eeadmin {
         if (isset($account['data']['publicaccountid'])) {
             $this->publicid = $account['data']['publicaccountid'];
             update_option('ee_publicaccountid', $this->publicid);
+        }
+
+        // contact delivery tools
+        if (isset($account['data']['enablecontactfeatures'])) {
+            $enablecontactfeatures = $account['data']['enablecontactfeatures'];
+            update_option('ee_enablecontactfeatures', $enablecontactfeatures);
+        }
+
+        // auto credit status
+        if (isset($account['data']['requiresemailcredits'])) {
+            $requiresemailcredits = $account['data']['requiresemailcredits'];
+        }
+
+        // credit status
+        if (isset($account['data']['emailcredits'])) {
+            $emailcredits = $account['data']['emailcredits'];
+        }
+
+        // requiresemailcredits status
+        if (isset($account['data']['requiresemailcredits'])) {
+            $requiresemailcredits = $account['data']['requiresemailcredits'];
+        }
+
+        // issub status
+        if (isset($account['data']['issub'])) {
+            $issub = $account['data']['issub'];
         }
 
         require_once ($this->theme_path . '/template/ees_settingsadmin.php');

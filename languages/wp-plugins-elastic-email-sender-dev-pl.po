@@ -11,6 +11,10 @@ msgstr ""
 "Language: pl\n"
 "Project-Id-Version: Plugins - Elastic Email Sender - Development (trunk)\n"
 
+#: class/ees_admin.php:53
+msgid "Widget"
+msgstr ""
+
 #. Author URI of the plugin/theme
 msgid "https://elasticemail.com"
 msgstr ""
@@ -31,227 +35,228 @@ msgstr ""
 msgid "Elastic Email Sender"
 msgstr ""
 
-#: template/settingsadmin.php:111
+#: template/ees_settingsadmin.php:111
 msgid "Want to use this plugin in a different language version? <a href=\"http://support.elasticemail.com/\"> Let us know or help us translate it!</a>"
 msgstr ""
 
-#: template/settingsadmin.php:106
+#: template/ees_settingsadmin.php:106
 msgid ""
 "Do not have an account yet? <a href=\"https://elasticemail.com/account#/create-account\" target=\"_blank\" title=\"First 1000 emails for free.\">Create your account now</a>!<br/>\n"
 "            <a href=\"http://elasticemail.com/transactional-email\" target=\"_blank\"> Tell me more about it</a>"
 msgstr ""
 
-#: template/settingsadmin.php:84 template/settingsadmin.php:89
+#: template/ees_settingsadmin.php:84 template/ees_settingsadmin.php:89
 msgid "Seems that you might have some limits on your account. Please check out your account settings to unlock more options."
 msgstr ""
 
-#: template/settingsadmin.php:80
+#: template/ees_settingsadmin.php:80
 msgid "Your account has a custom limit: "
 msgstr ""
 
-#: template/settingsadmin.php:79
+#: template/ees_settingsadmin.php:79
 msgid "Custom: "
 msgstr ""
 
-#: template/settingsadmin.php:76
+#: template/ees_settingsadmin.php:76
 msgid "Your account is limited to 5,000 free emails per day. Check out our"
 msgstr ""
 
-#: template/settingsadmin.php:72
+#: template/ees_settingsadmin.php:72
 msgid "Ups! It seems your your limit is 50. Fill out your profile to get unlimited possibilities."
 msgstr ""
 
-#: template/settingsadmin.php:68
+#: template/ees_settingsadmin.php:68
 msgid "Oops! It seems your limit is 5. Fill out your profile to get unlimited possibilities."
 msgstr ""
 
-#: template/settingsadmin.php:64
+#: template/ees_settingsadmin.php:64
 msgid "Lucky you! Your account has no daily limits! Check out our other"
 msgstr ""
 
-#: template/settingsadmin.php:63
+#: template/ees_settingsadmin.php:63
 msgid "No limits"
 msgstr ""
 
-#: template/settingsadmin.php:58
+#: template/ees_settingsadmin.php:58
 msgid "Account daily limit:"
 msgstr ""
 
-#: template/settingsadmin.php:47 template/settingsadmin.php:50
+#: template/ees_settingsadmin.php:47 template/ees_settingsadmin.php:50
 msgid "Complete your profile </a> or connect to Elastic Email API to start using the plugin."
 msgstr ""
 
-#: template/settingsadmin.php:47 template/settingsadmin.php:50
+#: template/ees_settingsadmin.php:47 template/ees_settingsadmin.php:50
 msgid "Please conect to Elastic Email API or complete the profile"
 msgstr ""
 
-#: template/settingsadmin.php:45
+#: template/ees_settingsadmin.php:45
 msgid "Active"
 msgstr ""
 
-#: template/settingsadmin.php:40
+#: template/ees_settingsadmin.php:40
 msgid "Account status:"
 msgstr ""
 
-#: template/settingsadmin.php:36
+#: template/ees_settingsadmin.php:36
 msgid "Read more"
 msgstr ""
 
-#: template/settingsadmin.php:36
+#: template/ees_settingsadmin.php:36
 msgid "Connection error, check your API key. "
 msgstr ""
 
-#: template/settingsadmin.php:36
+#: template/ees_settingsadmin.php:36
 msgid "Connected"
 msgstr ""
 
-#: template/settingsadmin.php:34
+#: template/ees_settingsadmin.php:34
 msgid "Connection Test:"
 msgstr ""
 
-#: template/settingsadmin.php:21
+#: template/ees_settingsadmin.php:21
 msgid ""
 "Welcome to Elastic Email WordPress Plugin!<br/> From now on, you can send your emails in the fastest and most reliable way!<br/>\n"
 "            Just one quick step and you will be ready to rock your subscribers' inbox.<br/><br/>\n"
 "            Fill in the details about the main configuration of Elastic Email connections."
 msgstr ""
 
-#: template/settingsadmin.php:17
+#: template/ees_settingsadmin.php:17
 msgid "General Settings"
 msgstr ""
 
-#: template/reports.php:252 template/settingsadmin.php:176
+#: template/ees_reports.php:212 template/ees_settingsadmin.php:115
 msgid "Share your experience of using Elastic Email WordPress Plugin by <a href=\"https://wordpress.org/support/plugin/elastic-email-sender/reviews/#new-post\">rating us here.</a> Thanks!"
 msgstr ""
 
-#: template/reports.php:247 template/settingsadmin.php:171
+#: template/ees_reports.php:289 template/ees_settingsadmin.php:176
 msgid "Remember that in case of any other questions or feedback, you can always contact our friendly <a href=\"http://support.elasticemail.com/\">Support Team.</a>"
 msgstr ""
 
-#: template/reports.php:244 template/settingsadmin.php:168
+#: template/ees_reports.php:286 template/ees_settingsadmin.php:173
 msgid "Want to talk with a live person? Contact us"
 msgstr ""
 
-#: template/reports.php:243 template/settingsadmin.php:167
+#: template/ees_reports.php:285 template/ees_settingsadmin.php:172
 msgid "Looking for code? Check our API"
 msgstr ""
 
-#: template/reports.php:242 template/settingsadmin.php:166
+#: template/ees_reports.php:284 template/ees_settingsadmin.php:171
 msgid "Guides and resources"
 msgstr ""
 
-#: template/reports.php:240 template/settingsadmin.php:164
+#: template/ees_reports.php:282 template/ees_settingsadmin.php:169
 msgid "If you would like to boost your email marketing campaigns or improve your email delivery, check out our helpful guides to get you started!"
 msgstr ""
 
-#: template/reports.php:239 template/settingsadmin.php:163
+#: template/ees_reports.php:281 template/ees_settingsadmin.php:168
 msgid "How we can help you?"
 msgstr ""
 
-#: template/reports.php:233 template/settingsadmin.php:157
+#: template/ees_reports.php:275 template/ees_settingsadmin.php:162
 msgid "You will start receiving our email marketing newsletter, as soon as you confirm your subscription."
 msgstr ""
 
-#: template/reports.php:232 template/settingsadmin.php:156
+#: template/ees_reports.php:274 template/ees_settingsadmin.php:161
 msgid "Thank you for subscribing to our newsletter!"
 msgstr ""
 
-#: template/reports.php:227 template/settingsadmin.php:151
+#: template/ees_reports.php:269 template/ees_settingsadmin.php:156
 msgid "Subscribe"
 msgstr ""
 
-#: template/reports.php:214 template/settingsadmin.php:138
+#: template/ees_reports.php:256 template/ees_settingsadmin.php:143
 msgid "Name"
 msgstr ""
 
-#: template/reports.php:209 template/settingsadmin.php:133
+#: template/ees_reports.php:251 template/ees_settingsadmin.php:138
 msgid "Email Address"
 msgstr ""
 
-#: template/reports.php:196 template/settingsadmin.php:120
+#: template/ees_reports.php:238 template/ees_settingsadmin.php:125
 msgid "If you already use Elastic Email to send your emails, you can subscribe to our monthly updates to start receiving the latest email news, tips, best practices and more."
 msgstr ""
 
-#: template/reports.php:193 template/settingsadmin.php:117
+#: template/ees_reports.php:235 template/ees_settingsadmin.php:122
 msgid "If you are new to Elastic Email, feel free to visit our <a href=\"https://elasticemail.com\">website</a> and find out how our comprehensive set of tools will help you reach your goals or get premium email marketing tools at a fraction of what you're paying now!"
 msgstr ""
 
-#: template/reports.php:191 template/settingsadmin.php:115
+#: template/ees_reports.php:233 template/ees_settingsadmin.php:120
 msgid "Let us help you send better emails!"
 msgstr ""
 
-#: template/reports.php:180
+#: template/ees_reports.php:223 template/ees_settingswidget.php:231
 msgid "Oops! Your Elastic Email account has not been connected. Configure the settings to start using the plugin."
 msgstr ""
 
-#: template/reports.php:81 template/reports.php:105
+#: template/ees_reports.php:83 template/ees_reports.php:143
 msgid "Bounced"
 msgstr ""
 
-#: template/reports.php:80 template/reports.php:105
+#: template/ees_reports.php:82 template/ees_reports.php:143
 msgid "Unsubscribed"
 msgstr ""
 
-#: template/reports.php:79 template/reports.php:105
+#: template/ees_reports.php:81 template/ees_reports.php:143
 msgid "Clicked"
 msgstr ""
 
-#: template/reports.php:78 template/reports.php:105
+#: template/ees_reports.php:80 template/ees_reports.php:143
 msgid "Opened"
 msgstr ""
 
-#: template/reports.php:77 template/reports.php:105
+#: template/ees_reports.php:79 template/ees_reports.php:143
 msgid "Delivered"
 msgstr ""
 
-#: template/reports.php:76
+#: template/ees_reports.php:78
 msgid "Submitted"
 msgstr ""
 
-#: template/reports.php:62
+#: template/ees_reports.php:64
 msgid "Last two weeks"
 msgstr ""
 
-#: template/reports.php:61
+#: template/ees_reports.php:63
 msgid "Last week"
 msgstr ""
 
-#: template/reports.php:60
+#: template/ees_reports.php:62
 msgid "Last month"
 msgstr ""
 
-#: template/reports.php:59
+#: template/ees_reports.php:61
 msgid "Select data range"
 msgstr ""
 
-#: template/reports.php:49
+#: template/ees_reports.php:51
 msgid "Please note, that the data below is an example. Send your first campaign, to get the real statistics."
 msgstr ""
 
-#: template/reports.php:26
+#: template/ees_reports.php:28
 msgid " - last two weeks"
 msgstr ""
 
-#: template/reports.php:23
+#: template/ees_reports.php:25
 msgid " - last week"
 msgstr ""
 
-#: template/reports.php:20 template/reports.php:32
+#: template/ees_reports.php:22 template/ees_reports.php:34
 msgid " - last month"
 msgstr ""
 
-#: template/reports.php:7 template/settingsadmin.php:7
+#: template/ees_reports.php:7 template/ees_settingsadmin.php:7
+#: template/ees_settingswidget.php:7
 msgid "Settings saved."
 msgstr ""
 
-#: class/eeadmin.php:189
+#: class/ees_admin.php:246
 msgid "Use the defaults Wordpress function to send emails."
 msgstr ""
 
-#: class/eeadmin.php:188
+#: class/ees_admin.php:245
 msgid "Send all WordPress emails via Elastic Email API."
 msgstr ""
 
-#: class/eeadmin.php:39
+#: class/ees_admin.php:49
 msgid "Reports"
 msgstr ""

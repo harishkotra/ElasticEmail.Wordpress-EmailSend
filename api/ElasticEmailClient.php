@@ -24,6 +24,7 @@
   SOFTWARE.
  */
 
+/* Sender */
 namespace ElasticEmailClient;
 
 use ApiTypes;
@@ -54,12 +55,26 @@ class ApiClient {
                     'content-type' => 'multipart/form-data; boundary=' . self::$boundary
                 ),
                 'body' => implode("", self::$postbody)));
+
+
+            $jsonresponse = json_decode($response['body'], true);
+           
             if (!is_wp_error($response)) {
-                if ($response['response']['code'] !== 200) {
+                if (isset($jsonresponse['error'])) {
+                    if (($jsonresponse['error'] == 'Not enough credit for campaign.') || ($jsonresponse['error'] == 'Error: Daily limit exceeded. Please fill out your profile to have this daily limit removed.')) {
+                        update_option('elastic-email-credit-status', '<span style="color:red;font-weight:bold;">Not enough credit for send email</span>');
+                    }
+                }
+
+                if (isset($jsonresponse['data']['transactionid'])) {
+                    update_option('elastic-email-credit-status', '<span style="color:green;font-weight:bold;">OK</span>');
+                }
+
+                if ($response['response']['code'] != 200) {
                     return "Code Error: " . $response['response']['code'];
                 }
-                $jsonresponse = json_decode($response['body'], true);
-                if ($jsonresponse['success'] === true) {
+
+                if ($jsonresponse['success'] == true) {
                     return $jsonresponse;
                 } else {
                     return false;
@@ -700,8 +715,8 @@ class Account {
 /**
  * Managing attachments uploaded to your account.
  */
-class Attachment
-{
+class Attachment {
+
     /**
      * Permanently deletes attachment file from your account
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -772,8 +787,8 @@ class Attachment
 /**
  * Sending and monitoring progress of your Campaigns
  */
-class Campaign
-{
+class Campaign {
+
     /**
      * Adds a campaign to the queue for processing based on the configuration
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -860,8 +875,8 @@ class Campaign
 /**
  * SMTP and HTTP API channels for grouping email delivery.
  */
-class Channel
-{
+class Channel {
+
     /**
      * Manually add a channel to your account to group email
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -961,8 +976,8 @@ class Channel
 /**
  * Methods used to manage your Contacts.
  */
-class Contact
-{
+class Contact {
+
     /**
      * Add a new contact and optionally to one of your lists.  Note that your API KEY is not required for this call.
      * @param string $publicAccountID Public key for limited access to your account such as contact/add so you can use it safely on public websites.
@@ -985,22 +1000,22 @@ class Contact
      */
     public function Add($publicAccountID, $email, array $publicListID = array(), array $listName = array(), $firstName = null, $lastName = null, $source = ApiTypes\ContactSource::ContactApi, $returnUrl = null, $sourceUrl = null, $activationReturnUrl = null, $activationTemplate = null, $sendActivation = true, $consentDate = null, $consentIP = null, array $field = array(), $notifyEmail = null) {
         $arr = array('publicAccountID' => $publicAccountID,
-                    'email' => $email,
-                    'publicListID' => (count($publicListID) === 0) ? null : join(';', $publicListID),
-                    'listName' => (count($listName) === 0) ? null : join(';', $listName),
-                    'firstName' => $firstName,
-                    'lastName' => $lastName,
-                    'source' => $source,
-                    'returnUrl' => $returnUrl,
-                    'sourceUrl' => $sourceUrl,
-                    'activationReturnUrl' => $activationReturnUrl,
-                    'activationTemplate' => $activationTemplate,
-                    'sendActivation' => $sendActivation,
-                    'consentDate' => $consentDate,
-                    'consentIP' => $consentIP,
-                    'notifyEmail' => $notifyEmail        );
-        foreach(array_keys($field) as $key) {
-            $arr['field_'.$key] = $field[$key]; 
+            'email' => $email,
+            'publicListID' => (count($publicListID) === 0) ? null : join(';', $publicListID),
+            'listName' => (count($listName) === 0) ? null : join(';', $listName),
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'source' => $source,
+            'returnUrl' => $returnUrl,
+            'sourceUrl' => $sourceUrl,
+            'activationReturnUrl' => $activationReturnUrl,
+            'activationTemplate' => $activationTemplate,
+            'sendActivation' => $sendActivation,
+            'consentDate' => $consentDate,
+            'consentIP' => $consentIP,
+            'notifyEmail' => $notifyEmail);
+        foreach (array_keys($field) as $key) {
+            $arr['field_' . $key] = $field[$key];
         }
         return ApiClient::Request('contact/add', $arr);
     }
@@ -1227,17 +1242,17 @@ class Contact
      */
     public function QuickAdd($emails, $firstName = null, $lastName = null, $publicListID = null, $listName = null, $status = ApiTypes\ContactStatus::Active, $notes = null, $consentDate = null, $consentIP = null, array $field = array(), $notifyEmail = null) {
         $arr = array('emails' => (count($emails) === 0) ? null : join(';', $emails),
-                    'firstName' => $firstName,
-                    'lastName' => $lastName,
-                    'publicListID' => $publicListID,
-                    'listName' => $listName,
-                    'status' => $status,
-                    'notes' => $notes,
-                    'consentDate' => $consentDate,
-                    'consentIP' => $consentIP,
-                    'notifyEmail' => $notifyEmail        );
-        foreach(array_keys($field) as $key) {
-            $arr['field_'.$key] = $field[$key]; 
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'publicListID' => $publicListID,
+            'listName' => $listName,
+            'status' => $status,
+            'notes' => $notes,
+            'consentDate' => $consentDate,
+            'consentIP' => $consentIP,
+            'notifyEmail' => $notifyEmail);
+        foreach (array_keys($field) as $key) {
+            $arr['field_' . $key] = $field[$key];
         }
         return ApiClient::Request('contact/quickadd', $arr);
     }
@@ -1266,12 +1281,12 @@ class Contact
      */
     public function Update($email, $firstName = null, $lastName = null, $clearRestOfFields = true, array $field = array(), $customFields = null) {
         $arr = array('email' => $email,
-                    'firstName' => $firstName,
-                    'lastName' => $lastName,
-                    'clearRestOfFields' => $clearRestOfFields,
-                    'customFields' => $customFields        );
-        foreach(array_keys($field) as $key) {
-            $arr['field_'.$key] = $field[$key]; 
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'clearRestOfFields' => $clearRestOfFields,
+            'customFields' => $customFields);
+        foreach (array_keys($field) as $key) {
+            $arr['field_' . $key] = $field[$key];
         }
         return ApiClient::Request('contact/update', $arr);
     }
@@ -1296,7 +1311,7 @@ class Contact
                     'status' => $status,
                     'consentDate' => $consentDate,
                     'consentIP' => $consentIP
-        ), "POST", $contactFile);
+                        ), "POST", $contactFile);
     }
 
 }
@@ -1304,8 +1319,8 @@ class Contact
 /**
  * Managing sender domains. Creating new entries and validating domain records.
  */
-class Domain
-{
+class Domain {
+
     /**
      * Add new domain to account
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -1401,8 +1416,8 @@ class Domain
 /**
  * 
  */
-class Email
-{
+class Email {
+
     /**
      * Get email batch status
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -1473,38 +1488,38 @@ class Email
      */
     public function Send($subject = null, $from = null, $fromName = null, $sender = null, $senderName = null, $msgFrom = null, $msgFromName = null, $replyTo = null, $replyToName = null, array $to = array(), array $msgTo = array(), array $msgCC = array(), array $msgBcc = array(), array $lists = array(), array $segments = array(), $mergeSourceFilename = null, $channel = null, $bodyHtml = null, $bodyText = null, $charset = null, $charsetBodyHtml = null, $charsetBodyText = null, $encodingType = ApiTypes\EncodingType::None, $template = null, array $attachmentFiles = array(), array $headers = array(), $postBack = null, array $merge = array(), $timeOffSetMinutes = null, $poolName = null, $isTransactional = false) {
         $arr = array('subject' => $subject,
-                    'from' => $from,
-                    'fromName' => $fromName,
-                    'sender' => $sender,
-                    'senderName' => $senderName,
-                    'msgFrom' => $msgFrom,
-                    'msgFromName' => $msgFromName,
-                    'replyTo' => $replyTo,
-                    'replyToName' => $replyToName,
-                    'to' => (count($to) === 0) ? null : join(';', $to),
-                    'msgTo' => (count($msgTo) === 0) ? null : join(';', $msgTo),
-                    'msgCC' => (count($msgCC) === 0) ? null : join(';', $msgCC),
-                    'msgBcc' => (count($msgBcc) === 0) ? null : join(';', $msgBcc),
-                    'lists' => (count($lists) === 0) ? null : join(';', $lists),
-                    'segments' => (count($segments) === 0) ? null : join(';', $segments),
-                    'mergeSourceFilename' => $mergeSourceFilename,
-                    'channel' => $channel,
-                    'bodyHtml' => $bodyHtml,
-                    'bodyText' => $bodyText,
-                    'charset' => $charset,
-                    'charsetBodyHtml' => $charsetBodyHtml,
-                    'charsetBodyText' => $charsetBodyText,
-                    'encodingType' => $encodingType,
-                    'template' => $template,
-                    'postBack' => $postBack,
-                    'timeOffSetMinutes' => $timeOffSetMinutes,
-                    'poolName' => $poolName,
-                    'isTransactional' => $isTransactional        );
-        foreach(array_keys($headers) as $key) {
-            $arr['headers_'.$key] = $key.': '.$headers[$key]; 
+            'from' => $from,
+            'fromName' => $fromName,
+            'sender' => $sender,
+            'senderName' => $senderName,
+            'msgFrom' => $msgFrom,
+            'msgFromName' => $msgFromName,
+            'replyTo' => $replyTo,
+            'replyToName' => $replyToName,
+            'to' => (count($to) === 0) ? null : join(';', $to),
+            'msgTo' => (count($msgTo) === 0) ? null : join(';', $msgTo),
+            'msgCC' => (count($msgCC) === 0) ? null : join(';', $msgCC),
+            'msgBcc' => (count($msgBcc) === 0) ? null : join(';', $msgBcc),
+            'lists' => (count($lists) === 0) ? null : join(';', $lists),
+            'segments' => (count($segments) === 0) ? null : join(';', $segments),
+            'mergeSourceFilename' => $mergeSourceFilename,
+            'channel' => $channel,
+            'bodyHtml' => $bodyHtml,
+            'bodyText' => $bodyText,
+            'charset' => $charset,
+            'charsetBodyHtml' => $charsetBodyHtml,
+            'charsetBodyText' => $charsetBodyText,
+            'encodingType' => $encodingType,
+            'template' => $template,
+            'postBack' => $postBack,
+            'timeOffSetMinutes' => $timeOffSetMinutes,
+            'poolName' => $poolName,
+            'isTransactional' => $isTransactional);
+        foreach (array_keys($headers) as $key) {
+            $arr['headers_' . $key] = $key . ': ' . $headers[$key];
         }
-        foreach(array_keys($merge) as $key) {
-            $arr['merge_'.$key] = $merge[$key]; 
+        foreach (array_keys($merge) as $key) {
+            $arr['merge_' . $key] = $merge[$key];
         }
         return ApiClient::Request('email/send', $arr, "POST", $attachmentFiles);
     }
@@ -1537,8 +1552,8 @@ class Email
 /**
  * 
  */
-class Export
-{
+class Export {
+
     /**
      * Check the current status of the export.
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -1590,8 +1605,8 @@ class Export
 /**
  * API methods for managing your Lists
  */
-class EEList
-{
+class EEList {
+
     /**
      * Create new list, based on filtering rule or list of IDs
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -1821,8 +1836,8 @@ class EEList
 /**
  * Methods to check logs of your campaigns
  */
-class Log
-{
+class Log {
+
     /**
      * Cancels emails that are waiting to be sent.
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -2012,8 +2027,8 @@ class Log
 /**
  * Manages your segments - dynamically created lists of contacts
  */
-class Segment
-{
+class Segment {
+
     /**
      * Create new segment, based on specified RULE.
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -2128,8 +2143,8 @@ class Segment
 /**
  * Managing texting to your clients.
  */
-class SMS
-{
+class SMS {
+
     /**
      * Send a short SMS Message (maximum of 1600 characters) to any mobile phone.
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -2148,8 +2163,8 @@ class SMS
 /**
  * Methods to organize and get results of your surveys
  */
-class Survey
-{
+class Survey {
+
     /**
      * Adds a new survey
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -2241,8 +2256,8 @@ class Survey
 /**
  * Managing and editing templates of your emails
  */
-class Template
-{
+class Template {
+
     /**
      * Create new Template. Needs to be sent using POST method
      * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
@@ -2412,492 +2427,491 @@ class Template
 
 }
 
-
 namespace ApiTypes;
 
 /**
  * Detailed information about your account
  */
-class Account
-{
+class Account {
+
     /**
      * Code used for tax purposes.
      */
-    public /*string*/ $TaxCode;
+    public /* string */ $TaxCode;
 
     /**
      * Public key for limited access to your account such as contact/add so you can use it safely on public websites.
      */
-    public /*string*/ $PublicAccountID;
+    public /* string */ $PublicAccountID;
 
     /**
      * ApiKey that gives you access to our SMTP and HTTP API's.
      */
-    public /*string*/ $ApiKey;
+    public /* string */ $ApiKey;
 
     /**
      * Second ApiKey that gives you access to our SMTP and HTTP API's.  Used mainly for changing ApiKeys without disrupting services.
      */
-    public /*string*/ $ApiKey2;
+    public /* string */ $ApiKey2;
 
     /**
      * True, if account is a subaccount. Otherwise, false
      */
-    public /*bool*/ $IsSub;
+    public /* bool */ $IsSub;
 
     /**
      * The number of subaccounts this account has.
      */
-    public /*long*/ $SubAccountsCount;
+    public /* long */ $SubAccountsCount;
 
     /**
      * Number of status: 1 - Active
      */
-    public /*int*/ $StatusNumber;
+    public /* int */ $StatusNumber;
 
     /**
      * Account status: Active
      */
-    public /*string*/ $StatusFormatted;
+    public /* string */ $StatusFormatted;
 
     /**
      * URL form for payments.
      */
-    public /*string*/ $PaymentFormUrl;
+    public /* string */ $PaymentFormUrl;
 
     /**
      * URL to your logo image.
      */
-    public /*string*/ $LogoUrl;
+    public /* string */ $LogoUrl;
 
     /**
      * HTTP address of your website.
      */
-    public /*string*/ $Website;
+    public /* string */ $Website;
 
     /**
      * True: Turn on or off ability to send mails under your brand. Otherwise, false
      */
-    public /*bool*/ $EnablePrivateBranding;
+    public /* bool */ $EnablePrivateBranding;
 
     /**
      * Address to your support.
      */
-    public /*string*/ $SupportLink;
+    public /* string */ $SupportLink;
 
     /**
      * Subdomain for your rebranded service
      */
-    public /*string*/ $PrivateBrandingUrl;
+    public /* string */ $PrivateBrandingUrl;
 
     /**
      * First name.
      */
-    public /*string*/ $FirstName;
+    public /* string */ $FirstName;
 
     /**
      * Last name.
      */
-    public /*string*/ $LastName;
+    public /* string */ $LastName;
 
     /**
      * Company name.
      */
-    public /*string*/ $Company;
+    public /* string */ $Company;
 
     /**
      * First line of address.
      */
-    public /*string*/ $Address1;
+    public /* string */ $Address1;
 
     /**
      * Second line of address.
      */
-    public /*string*/ $Address2;
+    public /* string */ $Address2;
 
     /**
      * City.
      */
-    public /*string*/ $City;
+    public /* string */ $City;
 
     /**
      * State or province.
      */
-    public /*string*/ $State;
+    public /* string */ $State;
 
     /**
      * Zip/postal code.
      */
-    public /*string*/ $Zip;
+    public /* string */ $Zip;
 
     /**
      * Numeric ID of country. A file with the list of countries is available <a href="http://api.elasticemail.com/public/countries"><b>here</b></a>
      */
-    public /*?int*/ $CountryID;
+    public /* ?int */ $CountryID;
 
     /**
      * Phone number
      */
-    public /*string*/ $Phone;
+    public /* string */ $Phone;
 
     /**
      * Proper email address.
      */
-    public /*string*/ $Email;
+    public /* string */ $Email;
 
     /**
      * URL for affiliating.
      */
-    public /*string*/ $AffiliateLink;
+    public /* string */ $AffiliateLink;
 
     /**
      * Numeric reputation
      */
-    public /*double*/ $Reputation;
+    public /* double */ $Reputation;
 
     /**
      * Amount of emails sent from this account
      */
-    public /*long*/ $TotalEmailsSent;
+    public /* long */ $TotalEmailsSent;
 
     /**
      * Amount of emails sent from this account
      */
-    public /*?long*/ $MonthlyEmailsSent;
+    public /* ?long */ $MonthlyEmailsSent;
 
     /**
      * Amount of emails sent from this account
      */
-    public /*decimal*/ $Credit;
+    public /* decimal */ $Credit;
 
     /**
      * Amount of email credits
      */
-    public /*int*/ $EmailCredits;
+    public /* int */ $EmailCredits;
 
     /**
      * Amount of emails sent from this account
      */
-    public /*decimal*/ $PricePerEmail;
+    public /* decimal */ $PricePerEmail;
 
     /**
      * Why your clients are receiving your emails.
      */
-    public /*string*/ $DeliveryReason;
+    public /* string */ $DeliveryReason;
 
     /**
      * URL for making payments.
      */
-    public /*string*/ $AccountPaymentUrl;
+    public /* string */ $AccountPaymentUrl;
 
     /**
      * Address of SMTP server.
      */
-    public /*string*/ $Smtp;
+    public /* string */ $Smtp;
 
     /**
      * Address of alternative SMTP server.
      */
-    public /*string*/ $SmtpAlternative;
+    public /* string */ $SmtpAlternative;
 
     /**
      * Status of automatic payments configuration.
      */
-    public /*string*/ $AutoCreditStatus;
+    public /* string */ $AutoCreditStatus;
 
     /**
      * When AutoCreditStatus is Enabled, the credit level that triggers the credit to be recharged.
      */
-    public /*decimal*/ $AutoCreditLevel;
+    public /* decimal */ $AutoCreditLevel;
 
     /**
      * When AutoCreditStatus is Enabled, the amount of credit to be recharged.
      */
-    public /*decimal*/ $AutoCreditAmount;
+    public /* decimal */ $AutoCreditAmount;
 
     /**
      * Amount of emails account can send daily
      */
-    public /*int*/ $DailySendLimit;
+    public /* int */ $DailySendLimit;
 
     /**
      * Creation date.
      */
-    public /*DateTime*/ $DateCreated;
+    public /* DateTime */ $DateCreated;
 
     /**
      * True, if you have enabled link tracking. Otherwise, false
      */
-    public /*bool*/ $LinkTracking;
+    public /* bool */ $LinkTracking;
 
     /**
      * Type of content encoding
      */
-    public /*string*/ $ContentTransferEncoding;
+    public /* string */ $ContentTransferEncoding;
 
     /**
      * Amount of Litmus credits
      */
-    public /*decimal*/ $LitmusCredits;
+    public /* decimal */ $LitmusCredits;
 
     /**
      * Enable contact delivery and optimization tools on your Account.
      */
-    public /*bool*/ $EnableContactFeatures;
+    public /* bool */ $EnableContactFeatures;
 
     /**
      * 
      */
-    public /*bool*/ $NeedsSMSVerification;
+    public /* bool */ $NeedsSMSVerification;
 
 }
 
 /**
  * Basic overview of your account
  */
-class AccountOverview
-{
-    /**
-     * Amount of emails sent from this account
-     */
-    public /*long*/ $TotalEmailsSent;
+class AccountOverview {
 
     /**
      * Amount of emails sent from this account
      */
-    public /*decimal*/ $Credit;
+    public /* long */ $TotalEmailsSent;
+
+    /**
+     * Amount of emails sent from this account
+     */
+    public /* decimal */ $Credit;
 
     /**
      * Cost of 1000 emails
      */
-    public /*decimal*/ $CostPerThousand;
+    public /* decimal */ $CostPerThousand;
 
     /**
      * Number of messages in progress
      */
-    public /*long*/ $InProgressCount;
+    public /* long */ $InProgressCount;
 
     /**
      * Number of contacts currently with blocked status of Unsubscribed, Complaint, Bounced or InActive
      */
-    public /*long*/ $BlockedContactsCount;
+    public /* long */ $BlockedContactsCount;
 
     /**
      * Numeric reputation
      */
-    public /*double*/ $Reputation;
+    public /* double */ $Reputation;
 
     /**
      * Number of contacts
      */
-    public /*long*/ $ContactCount;
+    public /* long */ $ContactCount;
 
     /**
      * Number of created campaigns
      */
-    public /*long*/ $CampaignCount;
+    public /* long */ $CampaignCount;
 
     /**
      * Number of available templates
      */
-    public /*long*/ $TemplateCount;
+    public /* long */ $TemplateCount;
 
     /**
      * Number of created subaccounts
      */
-    public /*long*/ $SubAccountCount;
+    public /* long */ $SubAccountCount;
 
     /**
      * Number of active referrals
      */
-    public /*long*/ $ReferralCount;
+    public /* long */ $ReferralCount;
 
 }
 
 /**
  * Lists advanced sending options of your account.
  */
-class AdvancedOptions
-{
+class AdvancedOptions {
+
     /**
      * True, if you want to track clicks. Otherwise, false
      */
-    public /*bool*/ $EnableClickTracking;
+    public /* bool */ $EnableClickTracking;
 
     /**
      * True, if you want to track by link tracking. Otherwise, false
      */
-    public /*bool*/ $EnableLinkClickTracking;
+    public /* bool */ $EnableLinkClickTracking;
 
     /**
      * True, if you want to use template scripting in your emails {{}}. Otherwise, false
      */
-    public /*bool*/ $EnableTemplateScripting;
+    public /* bool */ $EnableTemplateScripting;
 
     /**
      * True, if text BODY of message should be created automatically. Otherwise, false
      */
-    public /*bool*/ $AutoTextFormat;
+    public /* bool */ $AutoTextFormat;
 
     /**
      * True, if you want bounce notifications returned. Otherwise, false
      */
-    public /*bool*/ $EmailNotificationForError;
+    public /* bool */ $EmailNotificationForError;
 
     /**
      * True, if you want to send web notifications for sent email. Otherwise, false
      */
-    public /*bool*/ $WebNotificationForSent;
+    public /* bool */ $WebNotificationForSent;
 
     /**
      * True, if you want to send web notifications for opened email. Otherwise, false
      */
-    public /*bool*/ $WebNotificationForOpened;
+    public /* bool */ $WebNotificationForOpened;
 
     /**
      * True, if you want to send web notifications for clicked email. Otherwise, false
      */
-    public /*bool*/ $WebNotificationForClicked;
+    public /* bool */ $WebNotificationForClicked;
 
     /**
      * True, if you want to send web notifications for unsubscribed email. Otherwise, false
      */
-    public /*bool*/ $WebnotificationForUnsubscribed;
+    public /* bool */ $WebnotificationForUnsubscribed;
 
     /**
      * True, if you want to send web notifications for complaint email. Otherwise, false
      */
-    public /*bool*/ $WebNotificationForAbuse;
+    public /* bool */ $WebNotificationForAbuse;
 
     /**
      * True, if you want to send web notifications for bounced email. Otherwise, false
      */
-    public /*bool*/ $WebNotificationForError;
+    public /* bool */ $WebNotificationForError;
 
     /**
      * True, if you want to receive notifications for each type only once per email. Otherwise, false
      */
-    public /*bool*/ $WebNotificationNotifyOncePerEmail;
+    public /* bool */ $WebNotificationNotifyOncePerEmail;
 
     /**
      * True, if you want to receive low credit email notifications. Otherwise, false
      */
-    public /*bool*/ $LowCreditNotification;
+    public /* bool */ $LowCreditNotification;
 
     /**
      * True, if you want inbound email to only process contacts from your account. Otherwise, false
      */
-    public /*bool*/ $InboundContactsOnly;
+    public /* bool */ $InboundContactsOnly;
 
     /**
      * True, if this account is a sub-account. Otherwise, false
      */
-    public /*bool*/ $IsSubAccount;
+    public /* bool */ $IsSubAccount;
 
     /**
      * True, if this account resells Elastic Email. Otherwise, false.
      */
-    public /*bool*/ $IsOwnedByReseller;
+    public /* bool */ $IsOwnedByReseller;
 
     /**
      * True, if you want to enable list-unsubscribe header. Otherwise, false
      */
-    public /*bool*/ $EnableUnsubscribeHeader;
+    public /* bool */ $EnableUnsubscribeHeader;
 
     /**
      * True, if you want to display your labels on your unsubscribe form. Otherwise, false
      */
-    public /*bool*/ $ManageSubscriptions;
+    public /* bool */ $ManageSubscriptions;
 
     /**
      * True, if you want to only display labels that the contact is subscribed to on your unsubscribe form. Otherwise, false
      */
-    public /*bool*/ $ManageSubscribedOnly;
+    public /* bool */ $ManageSubscribedOnly;
 
     /**
      * True, if you want to display an option for the contact to opt into transactional email only on your unsubscribe form. Otherwise, false
      */
-    public /*bool*/ $TransactionalOnUnsubscribe;
+    public /* bool */ $TransactionalOnUnsubscribe;
 
     /**
      * 
      */
-    public /*string*/ $PreviewMessageID;
+    public /* string */ $PreviewMessageID;
 
     /**
      * True, if you want to apply custom headers to your emails. Otherwise, false
      */
-    public /*bool*/ $AllowCustomHeaders;
+    public /* bool */ $AllowCustomHeaders;
 
     /**
      * Email address to send a copy of all email to.
      */
-    public /*string*/ $BccEmail;
+    public /* string */ $BccEmail;
 
     /**
      * Type of content encoding
      */
-    public /*string*/ $ContentTransferEncoding;
+    public /* string */ $ContentTransferEncoding;
 
     /**
      * True, if you want to receive bounce email notifications. Otherwise, false
      */
-    public /*string*/ $EmailNotification;
+    public /* string */ $EmailNotification;
 
     /**
      * Email addresses to send a copy of all notifications from our system. Separated by semicolon
      */
-    public /*string*/ $NotificationsEmails;
+    public /* string */ $NotificationsEmails;
 
     /**
      * Emails, separated by semicolon, to which the notification about contact unsubscribing should be sent to
      */
-    public /*string*/ $UnsubscribeNotificationEmails;
+    public /* string */ $UnsubscribeNotificationEmails;
 
     /**
      * URL address to receive web notifications to parse and process.
      */
-    public /*string*/ $WebNotificationUrl;
+    public /* string */ $WebNotificationUrl;
 
     /**
      * URL used for tracking action of inbound emails
      */
-    public /*string*/ $HubCallbackUrl;
+    public /* string */ $HubCallbackUrl;
 
     /**
      * Domain you use as your inbound domain
      */
-    public /*string*/ $InboundDomain;
+    public /* string */ $InboundDomain;
 
     /**
      * True, if account has tooltips active. Otherwise, false
      */
-    public /*bool*/ $EnableUITooltips;
+    public /* bool */ $EnableUITooltips;
 
     /**
      * True, if you want to use Contact Delivery Tools.  Otherwise, false
      */
-    public /*bool*/ $EnableContactFeatures;
+    public /* bool */ $EnableContactFeatures;
 
     /**
      * URL to your logo image.
      */
-    public /*string*/ $LogoUrl;
+    public /* string */ $LogoUrl;
 
     /**
      * (0 means this functionality is NOT enabled) Score, depending on the number of times you have sent to a recipient, at which the given recipient should be moved to the Stale status
      */
-    public /*int*/ $StaleContactScore;
+    public /* int */ $StaleContactScore;
 
     /**
      * (0 means this functionality is NOT enabled) Number of days of inactivity for a contact after which the given recipient should be moved to the Stale status
      */
-    public /*int*/ $StaleContactInactiveDays;
+    public /* int */ $StaleContactInactiveDays;
 
     /**
      * Why your clients are receiving your emails.
      */
-    public /*string*/ $DeliveryReason;
+    public /* string */ $DeliveryReason;
 
 }
 
@@ -2905,8 +2919,8 @@ class AdvancedOptions
  * 
  * Enum class
  */
-abstract class APIKeyAction
-{
+abstract class APIKeyAction {
+
     /**
      * Add an additional APIKey to your Account.
      */
@@ -2927,390 +2941,390 @@ abstract class APIKeyAction
 /**
  * Attachment data
  */
-class Attachment
-{
+class Attachment {
+
     /**
      * Name of your file.
      */
-    public /*string*/ $FileName;
+    public /* string */ $FileName;
 
     /**
      * ID number of your attachment
      */
-    public /*long*/ $ID;
+    public /* long */ $ID;
 
     /**
      * Size of your attachment.
      */
-    public /*int*/ $Size;
+    public /* int */ $Size;
 
 }
 
 /**
  * Blocked Contact - Contact returning Hard Bounces
  */
-class BlockedContact
-{
+class BlockedContact {
+
     /**
      * Proper email address.
      */
-    public /*string*/ $Email;
+    public /* string */ $Email;
 
     /**
      * Name of status: Active, Engaged, Inactive, Abuse, Bounced, Unsubscribed.
      */
-    public /*string*/ $Status;
+    public /* string */ $Status;
 
     /**
      * RFC error message
      */
-    public /*string*/ $FriendlyErrorMessage;
+    public /* string */ $FriendlyErrorMessage;
 
     /**
      * Last change date
      */
-    public /*string*/ $DateUpdated;
+    public /* string */ $DateUpdated;
 
 }
 
 /**
  * Summary of bounced categories, based on specified date range.
  */
-class BouncedCategorySummary
-{
+class BouncedCategorySummary {
+
     /**
      * Number of messages marked as SPAM
      */
-    public /*long*/ $Spam;
+    public /* long */ $Spam;
 
     /**
      * Number of blacklisted messages
      */
-    public /*long*/ $BlackListed;
+    public /* long */ $BlackListed;
 
     /**
      * Number of messages flagged with 'No Mailbox'
      */
-    public /*long*/ $NoMailbox;
+    public /* long */ $NoMailbox;
 
     /**
      * Number of messages flagged with 'Grey Listed'
      */
-    public /*long*/ $GreyListed;
+    public /* long */ $GreyListed;
 
     /**
      * Number of messages flagged with 'Throttled'
      */
-    public /*long*/ $Throttled;
+    public /* long */ $Throttled;
 
     /**
      * Number of messages flagged with 'Timeout'
      */
-    public /*long*/ $Timeout;
+    public /* long */ $Timeout;
 
     /**
      * Number of messages flagged with 'Connection Problem'
      */
-    public /*long*/ $ConnectionProblem;
+    public /* long */ $ConnectionProblem;
 
     /**
      * Number of messages flagged with 'SPF Problem'
      */
-    public /*long*/ $SpfProblem;
+    public /* long */ $SpfProblem;
 
     /**
      * Number of messages flagged with 'Account Problem'
      */
-    public /*long*/ $AccountProblem;
+    public /* long */ $AccountProblem;
 
     /**
      * Number of messages flagged with 'DNS Problem'
      */
-    public /*long*/ $DnsProblem;
+    public /* long */ $DnsProblem;
 
     /**
      * Number of messages flagged with 'WhiteListing Problem'
      */
-    public /*long*/ $WhitelistingProblem;
+    public /* long */ $WhitelistingProblem;
 
     /**
      * Number of messages flagged with 'Code Error'
      */
-    public /*long*/ $CodeError;
+    public /* long */ $CodeError;
 
     /**
      * Number of messages flagged with 'Not Delivered'
      */
-    public /*long*/ $NotDelivered;
+    public /* long */ $NotDelivered;
 
     /**
      * Number of manually cancelled messages
      */
-    public /*long*/ $ManualCancel;
+    public /* long */ $ManualCancel;
 
     /**
      * Number of messages flagged with 'Connection terminated'
      */
-    public /*long*/ $ConnectionTerminated;
+    public /* long */ $ConnectionTerminated;
 
 }
 
 /**
  * Campaign
  */
-class Campaign
-{
+class Campaign {
+
     /**
      * ID number of selected Channel.
      */
-    public /*?int*/ $ChannelID;
+    public /* ?int */ $ChannelID;
 
     /**
      * Campaign's name
      */
-    public /*string*/ $Name;
+    public /* string */ $Name;
 
     /**
      * Name of campaign's status
      */
-    public /*ApiTypes\CampaignStatus*/ $Status;
+    public /* ApiTypes\CampaignStatus */ $Status;
 
     /**
      * List of Segment and List IDs, preceded with 'l' for Lists and 's' for Segments, comma separated
      */
-    public /*Array<string>*/ $Targets;
+    public /* Array<string> */ $Targets;
 
     /**
      * Number of event, triggering mail sending
      */
-    public /*ApiTypes\CampaignTriggerType*/ $TriggerType;
+    public /* ApiTypes\CampaignTriggerType */ $TriggerType;
 
     /**
      * Date of triggered send
      */
-    public /*?DateTime*/ $TriggerDate;
+    public /* ?DateTime */ $TriggerDate;
 
     /**
      * How far into the future should the campaign be sent, in minutes
      */
-    public /*double*/ $TriggerDelay;
+    public /* double */ $TriggerDelay;
 
     /**
      * When your next automatic mail will be sent, in minutes
      */
-    public /*double*/ $TriggerFrequency;
+    public /* double */ $TriggerFrequency;
 
     /**
      * How many times should the campaign be sent
      */
-    public /*int*/ $TriggerCount;
+    public /* int */ $TriggerCount;
 
     /**
      * ID number of transaction
      */
-    public /*int*/ $TriggerChannelID;
+    public /* int */ $TriggerChannelID;
 
     /**
      * Data for filtering event campaigns such as specific link addresses.
      */
-    public /*string*/ $TriggerData;
+    public /* string */ $TriggerData;
 
     /**
      * What should be checked for choosing the winner: opens or clicks
      */
-    public /*ApiTypes\SplitOptimization*/ $SplitOptimization;
+    public /* ApiTypes\SplitOptimization */ $SplitOptimization;
 
     /**
      * Number of minutes between sends during optimization period
      */
-    public /*int*/ $SplitOptimizationMinutes;
+    public /* int */ $SplitOptimizationMinutes;
 
     /**
      * 
      */
-    public /*int*/ $TimingOption;
+    public /* int */ $TimingOption;
 
     /**
      * 
      */
-    public /*Array<ApiTypes\CampaignTemplate>*/ $CampaignTemplates;
+    public /* Array<ApiTypes\CampaignTemplate> */ $CampaignTemplates;
 
 }
 
 /**
  * Channel
  */
-class CampaignChannel
-{
+class CampaignChannel {
+
     /**
      * ID number of selected Channel.
      */
-    public /*int*/ $ChannelID;
+    public /* int */ $ChannelID;
 
     /**
      * Filename
      */
-    public /*string*/ $Name;
+    public /* string */ $Name;
 
     /**
      * True, if you are sending a campaign. Otherwise, false.
      */
-    public /*bool*/ $IsCampaign;
+    public /* bool */ $IsCampaign;
 
     /**
      * Name of your custom IP Pool to be used in the sending process
      */
-    public /*string*/ $PoolName;
+    public /* string */ $PoolName;
 
     /**
      * Date of creation in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $DateAdded;
+    public /* DateTime */ $DateAdded;
 
     /**
      * Name of campaign's status
      */
-    public /*ApiTypes\CampaignStatus*/ $Status;
+    public /* ApiTypes\CampaignStatus */ $Status;
 
     /**
      * Date of last activity on account
      */
-    public /*?DateTime*/ $LastActivity;
+    public /* ?DateTime */ $LastActivity;
 
     /**
      * Datetime of last action done on campaign.
      */
-    public /*?DateTime*/ $LastProcessed;
+    public /* ?DateTime */ $LastProcessed;
 
     /**
      * Id number of parent channel
      */
-    public /*int*/ $ParentChannelID;
+    public /* int */ $ParentChannelID;
 
     /**
      * List of Segment and List IDs, preceded with 'l' for Lists and 's' for Segments, comma separated
      */
-    public /*Array<string>*/ $Targets;
+    public /* Array<string> */ $Targets;
 
     /**
      * Number of event, triggering mail sending
      */
-    public /*ApiTypes\CampaignTriggerType*/ $TriggerType;
+    public /* ApiTypes\CampaignTriggerType */ $TriggerType;
 
     /**
      * Date of triggered send
      */
-    public /*?DateTime*/ $TriggerDate;
+    public /* ?DateTime */ $TriggerDate;
 
     /**
      * How far into the future should the campaign be sent, in minutes
      */
-    public /*double*/ $TriggerDelay;
+    public /* double */ $TriggerDelay;
 
     /**
      * When your next automatic mail will be sent, in minutes
      */
-    public /*double*/ $TriggerFrequency;
+    public /* double */ $TriggerFrequency;
 
     /**
      * How many times should the campaign be sent
      */
-    public /*int*/ $TriggerCount;
+    public /* int */ $TriggerCount;
 
     /**
      * ID number of transaction
      */
-    public /*int*/ $TriggerChannelID;
+    public /* int */ $TriggerChannelID;
 
     /**
      * Data for filtering event campaigns such as specific link addresses.
      */
-    public /*string*/ $TriggerData;
+    public /* string */ $TriggerData;
 
     /**
      * What should be checked for choosing the winner: opens or clicks
      */
-    public /*ApiTypes\SplitOptimization*/ $SplitOptimization;
+    public /* ApiTypes\SplitOptimization */ $SplitOptimization;
 
     /**
      * Number of minutes between sends during optimization period
      */
-    public /*int*/ $SplitOptimizationMinutes;
+    public /* int */ $SplitOptimizationMinutes;
 
     /**
      * 
      */
-    public /*int*/ $TimingOption;
+    public /* int */ $TimingOption;
 
     /**
      * ID number of template.
      */
-    public /*?int*/ $TemplateID;
+    public /* ?int */ $TemplateID;
 
     /**
      * Default subject of email.
      */
-    public /*string*/ $TemplateSubject;
+    public /* string */ $TemplateSubject;
 
     /**
      * Default From: email address.
      */
-    public /*string*/ $TemplateFromEmail;
+    public /* string */ $TemplateFromEmail;
 
     /**
      * Default From: name.
      */
-    public /*string*/ $TemplateFromName;
+    public /* string */ $TemplateFromName;
 
     /**
      * Default Reply: email address.
      */
-    public /*string*/ $TemplateReplyEmail;
+    public /* string */ $TemplateReplyEmail;
 
     /**
      * Default Reply: name.
      */
-    public /*string*/ $TemplateReplyName;
+    public /* string */ $TemplateReplyName;
 
     /**
      * Total emails clicked
      */
-    public /*int*/ $ClickedCount;
+    public /* int */ $ClickedCount;
 
     /**
      * Total emails opened.
      */
-    public /*int*/ $OpenedCount;
+    public /* int */ $OpenedCount;
 
     /**
      * Overall number of recipients
      */
-    public /*int*/ $RecipientCount;
+    public /* int */ $RecipientCount;
 
     /**
      * Total emails sent.
      */
-    public /*int*/ $SentCount;
+    public /* int */ $SentCount;
 
     /**
      * Total emails sent.
      */
-    public /*int*/ $FailedCount;
+    public /* int */ $FailedCount;
 
     /**
      * Total emails clicked
      */
-    public /*int*/ $UnsubscribedCount;
+    public /* int */ $UnsubscribedCount;
 
     /**
      * Abuses - mails sent to user without their consent
      */
-    public /*int*/ $FailedAbuse;
+    public /* int */ $FailedAbuse;
 
     /**
      * List of CampaignTemplate for sending A-X split testing.
      */
-    public /*Array<ApiTypes\CampaignChannel>*/ $TemplateChannels;
+    public /* Array<ApiTypes\CampaignChannel> */ $TemplateChannels;
 
 }
 
@@ -3318,8 +3332,8 @@ class CampaignChannel
  * 
  * Enum class
  */
-abstract class CampaignStatus
-{
+abstract class CampaignStatus {
+
     /**
      * Campaign is logically deleted and not returned by API or interface calls.
      */
@@ -3365,52 +3379,52 @@ abstract class CampaignStatus
 /**
  * 
  */
-class CampaignTemplate
-{
+class CampaignTemplate {
+
     /**
      * ID number of selected Channel.
      */
-    public /*?int*/ $ChannelID;
+    public /* ?int */ $ChannelID;
 
     /**
      * Name of campaign's status
      */
-    public /*ApiTypes\CampaignStatus*/ $Status;
+    public /* ApiTypes\CampaignStatus */ $Status;
 
     /**
      * Name of your custom IP Pool to be used in the sending process
      */
-    public /*string*/ $PoolName;
+    public /* string */ $PoolName;
 
     /**
      * ID number of template.
      */
-    public /*?int*/ $TemplateID;
+    public /* ?int */ $TemplateID;
 
     /**
      * Default subject of email.
      */
-    public /*string*/ $TemplateSubject;
+    public /* string */ $TemplateSubject;
 
     /**
      * Default From: email address.
      */
-    public /*string*/ $TemplateFromEmail;
+    public /* string */ $TemplateFromEmail;
 
     /**
      * Default From: name.
      */
-    public /*string*/ $TemplateFromName;
+    public /* string */ $TemplateFromName;
 
     /**
      * Default Reply: email address.
      */
-    public /*string*/ $TemplateReplyEmail;
+    public /* string */ $TemplateReplyEmail;
 
     /**
      * Default Reply: name.
      */
-    public /*string*/ $TemplateReplyName;
+    public /* string */ $TemplateReplyName;
 
 }
 
@@ -3418,8 +3432,8 @@ class CampaignTemplate
  * 
  * Enum class
  */
-abstract class CampaignTriggerType
-{
+abstract class CampaignTriggerType {
+
     /**
      * 
      */
@@ -3451,8 +3465,8 @@ abstract class CampaignTriggerType
  * 
  * Enum class
  */
-abstract class CertificateValidationStatus
-{
+abstract class CertificateValidationStatus {
+
     /**
      * 
      */
@@ -3478,67 +3492,67 @@ abstract class CertificateValidationStatus
 /**
  * SMTP and HTTP API channel for grouping email delivery
  */
-class Channel
-{
+class Channel {
+
     /**
      * Descriptive name of the channel.
      */
-    public /*string*/ $Name;
+    public /* string */ $Name;
 
     /**
      * The date the channel was added to your account.
      */
-    public /*DateTime*/ $DateAdded;
+    public /* DateTime */ $DateAdded;
 
     /**
      * The date the channel was last sent through.
      */
-    public /*?DateTime*/ $LastActivity;
+    public /* ?DateTime */ $LastActivity;
 
     /**
      * The number of email jobs this channel has been used with.
      */
-    public /*int*/ $JobCount;
+    public /* int */ $JobCount;
 
     /**
      * The number of emails that have been clicked within this channel.
      */
-    public /*int*/ $ClickedCount;
+    public /* int */ $ClickedCount;
 
     /**
      * The number of emails that have been opened within this channel.
      */
-    public /*int*/ $OpenedCount;
+    public /* int */ $OpenedCount;
 
     /**
      * The number of emails attempted to be sent within this channel.
      */
-    public /*int*/ $RecipientCount;
+    public /* int */ $RecipientCount;
 
     /**
      * The number of emails that have been sent within this channel.
      */
-    public /*int*/ $SentCount;
+    public /* int */ $SentCount;
 
     /**
      * The number of emails that have been bounced within this channel.
      */
-    public /*int*/ $FailedCount;
+    public /* int */ $FailedCount;
 
     /**
      * The number of emails that have been unsubscribed within this channel.
      */
-    public /*int*/ $UnsubscribedCount;
+    public /* int */ $UnsubscribedCount;
 
     /**
      * The number of emails that have been marked as abuse or complaint within this channel.
      */
-    public /*int*/ $FailedAbuse;
+    public /* int */ $FailedAbuse;
 
     /**
      * The total cost for emails/attachments within this channel.
      */
-    public /*decimal*/ $Cost;
+    public /* decimal */ $Cost;
 
 }
 
@@ -3546,8 +3560,8 @@ class Channel
  * FileResponse compression format
  * Enum class
  */
-abstract class CompressionFormat
-{
+abstract class CompressionFormat {
+
     /**
      * No compression
      */
@@ -3563,218 +3577,218 @@ abstract class CompressionFormat
 /**
  * Contact
  */
-class Contact
-{
+class Contact {
+
     /**
      * 
      */
-    public /*int*/ $ContactScore;
+    public /* int */ $ContactScore;
 
     /**
      * Date of creation in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $DateAdded;
+    public /* DateTime */ $DateAdded;
 
     /**
      * Proper email address.
      */
-    public /*string*/ $Email;
+    public /* string */ $Email;
 
     /**
      * First name.
      */
-    public /*string*/ $FirstName;
+    public /* string */ $FirstName;
 
     /**
      * Last name.
      */
-    public /*string*/ $LastName;
+    public /* string */ $LastName;
 
     /**
      * Name of status: Active, Engaged, Inactive, Abuse, Bounced, Unsubscribed.
      */
-    public /*ApiTypes\ContactStatus*/ $Status;
+    public /* ApiTypes\ContactStatus */ $Status;
 
     /**
      * RFC Error code
      */
-    public /*?int*/ $BouncedErrorCode;
+    public /* ?int */ $BouncedErrorCode;
 
     /**
      * RFC error message
      */
-    public /*string*/ $BouncedErrorMessage;
+    public /* string */ $BouncedErrorMessage;
 
     /**
      * Total emails sent.
      */
-    public /*int*/ $TotalSent;
+    public /* int */ $TotalSent;
 
     /**
      * Total emails sent.
      */
-    public /*int*/ $TotalFailed;
+    public /* int */ $TotalFailed;
 
     /**
      * Total emails opened.
      */
-    public /*int*/ $TotalOpened;
+    public /* int */ $TotalOpened;
 
     /**
      * Total emails clicked
      */
-    public /*int*/ $TotalClicked;
+    public /* int */ $TotalClicked;
 
     /**
      * Date of first failed message
      */
-    public /*?DateTime*/ $FirstFailedDate;
+    public /* ?DateTime */ $FirstFailedDate;
 
     /**
      * Number of fails in sending to this Contact
      */
-    public /*int*/ $LastFailedCount;
+    public /* int */ $LastFailedCount;
 
     /**
      * Last change date
      */
-    public /*DateTime*/ $DateUpdated;
+    public /* DateTime */ $DateUpdated;
 
     /**
      * Source of URL of payment
      */
-    public /*ApiTypes\ContactSource*/ $Source;
+    public /* ApiTypes\ContactSource */ $Source;
 
     /**
      * RFC Error code
      */
-    public /*?int*/ $ErrorCode;
+    public /* ?int */ $ErrorCode;
 
     /**
      * RFC error message
      */
-    public /*string*/ $FriendlyErrorMessage;
+    public /* string */ $FriendlyErrorMessage;
 
     /**
      * IP address
      */
-    public /*string*/ $CreatedFromIP;
+    public /* string */ $CreatedFromIP;
 
     /**
      * Unsubscribed date in YYYY-MM-DD format
      */
-    public /*?DateTime*/ $UnsubscribedDate;
+    public /* ?DateTime */ $UnsubscribedDate;
 
     /**
      * Free form field of notes
      */
-    public /*string*/ $Notes;
+    public /* string */ $Notes;
 
     /**
      * Website of contact
      */
-    public /*string*/ $WebsiteUrl;
+    public /* string */ $WebsiteUrl;
 
     /**
      * Date this contact last opened an email
      */
-    public /*?DateTime*/ $LastOpened;
+    public /* ?DateTime */ $LastOpened;
 
     /**
      * 
      */
-    public /*?DateTime*/ $LastClicked;
+    public /* ?DateTime */ $LastClicked;
 
     /**
      * Custom contact field like firstname, lastname, city etc. JSON serialized text like { "city":"london" } 
      */
-    public /*array<string, string>*/ $CustomFields;
+    public /* array<string, string> */ $CustomFields;
 
 }
 
 /**
  * Collection of lists and segments
  */
-class ContactCollection
-{
+class ContactCollection {
+
     /**
      * Lists which contain the requested contact
      */
-    public /*Array<ApiTypes\ContactContainer>*/ $Lists;
+    public /* Array<ApiTypes\ContactContainer> */ $Lists;
 
     /**
      * Segments which contain the requested contact
      */
-    public /*Array<ApiTypes\ContactContainer>*/ $Segments;
+    public /* Array<ApiTypes\ContactContainer> */ $Segments;
 
 }
 
 /**
  * List's or segment's short info
  */
-class ContactContainer
-{
+class ContactContainer {
+
     /**
      * ID of the list/segment
      */
-    public /*int*/ $ID;
+    public /* int */ $ID;
 
     /**
      * Name of the list/segment
      */
-    public /*string*/ $Name;
+    public /* string */ $Name;
 
 }
 
 /**
  * History of chosen Contact
  */
-class ContactHistory
-{
+class ContactHistory {
+
     /**
      * ID of history of selected Contact.
      */
-    public /*long*/ $ContactHistoryID;
+    public /* long */ $ContactHistoryID;
 
     /**
      * Type of event occured on this Contact.
      */
-    public /*string*/ $EventType;
+    public /* string */ $EventType;
 
     /**
      * Numeric code of event occured on this Contact.
      */
-    public /*int*/ $EventTypeValue;
+    public /* int */ $EventTypeValue;
 
     /**
      * Formatted date of event.
      */
-    public /*string*/ $EventDate;
+    public /* string */ $EventDate;
 
     /**
      * Name of selected channel.
      */
-    public /*string*/ $ChannelName;
+    public /* string */ $ChannelName;
 
     /**
      * Name of template.
      */
-    public /*string*/ $TemplateName;
+    public /* string */ $TemplateName;
 
     /**
      * IP Address of the event.
      */
-    public /*string*/ $IPAddress;
+    public /* string */ $IPAddress;
 
     /**
      * Country of the event.
      */
-    public /*string*/ $Country;
+    public /* string */ $Country;
 
     /**
      * Information about the event
      */
-    public /*string*/ $Data;
+    public /* string */ $Data;
 
 }
 
@@ -3782,8 +3796,8 @@ class ContactHistory
  * 
  * Enum class
  */
-abstract class ContactSource
-{
+abstract class ContactSource {
+
     /**
      * Source of the contact is from sending an email via our SMTP or HTTP API's
      */
@@ -3815,8 +3829,8 @@ abstract class ContactSource
  * 
  * Enum class
  */
-abstract class ContactStatus
-{
+abstract class ContactStatus {
+
     /**
      * Only transactional email can be sent to contacts with this status.
      */
@@ -3867,109 +3881,109 @@ abstract class ContactStatus
 /**
  * Number of Contacts, grouped by Status;
  */
-class ContactStatusCounts
-{
+class ContactStatusCounts {
+
     /**
      * Number of engaged contacts
      */
-    public /*long*/ $Engaged;
+    public /* long */ $Engaged;
 
     /**
      * Number of active contacts
      */
-    public /*long*/ $Active;
+    public /* long */ $Active;
 
     /**
      * Number of complaint messages
      */
-    public /*long*/ $Complaint;
+    public /* long */ $Complaint;
 
     /**
      * Number of unsubscribed messages
      */
-    public /*long*/ $Unsubscribed;
+    public /* long */ $Unsubscribed;
 
     /**
      * Number of bounced messages
      */
-    public /*long*/ $Bounced;
+    public /* long */ $Bounced;
 
     /**
      * Number of inactive contacts
      */
-    public /*long*/ $Inactive;
+    public /* long */ $Inactive;
 
     /**
      * Number of transactional contacts
      */
-    public /*long*/ $Transactional;
+    public /* long */ $Transactional;
 
     /**
      * 
      */
-    public /*long*/ $Stale;
+    public /* long */ $Stale;
 
     /**
      * 
      */
-    public /*long*/ $NotConfirmed;
+    public /* long */ $NotConfirmed;
 
 }
 
 /**
  * Number of Unsubscribed or Complaint Contacts, grouped by Unsubscribe Reason;
  */
-class ContactUnsubscribeReasonCounts
-{
-    /**
-     * 
-     */
-    public /*long*/ $Unknown;
+class ContactUnsubscribeReasonCounts {
 
     /**
      * 
      */
-    public /*long*/ $NoLongerWant;
+    public /* long */ $Unknown;
 
     /**
      * 
      */
-    public /*long*/ $IrrelevantContent;
+    public /* long */ $NoLongerWant;
 
     /**
      * 
      */
-    public /*long*/ $TooFrequent;
+    public /* long */ $IrrelevantContent;
 
     /**
      * 
      */
-    public /*long*/ $NeverConsented;
+    public /* long */ $TooFrequent;
 
     /**
      * 
      */
-    public /*long*/ $DeceptiveContent;
+    public /* long */ $NeverConsented;
 
     /**
      * 
      */
-    public /*long*/ $AbuseReported;
+    public /* long */ $DeceptiveContent;
 
     /**
      * 
      */
-    public /*long*/ $ThirdParty;
+    public /* long */ $AbuseReported;
 
     /**
      * 
      */
-    public /*long*/ $ListUnsubscribe;
+    public /* long */ $ThirdParty;
 
     /**
      * 
      */
-    public /*long*/ $FromJourney;
+    public /* long */ $ListUnsubscribe;
+
+    /**
+     * 
+     */
+    public /* long */ $FromJourney;
 
 }
 
@@ -3977,8 +3991,8 @@ class ContactUnsubscribeReasonCounts
  * Type of credits
  * Enum class
  */
-abstract class CreditType
-{
+abstract class CreditType {
+
     /**
      * Used to send emails.  One credit = one email.
      */
@@ -3994,388 +4008,388 @@ abstract class CreditType
 /**
  * Daily summary of log status, based on specified date range.
  */
-class DailyLogStatusSummary
-{
+class DailyLogStatusSummary {
+
     /**
      * Date in YYYY-MM-DDThh:ii:ss format
      */
-    public /*string*/ $Date;
+    public /* string */ $Date;
 
     /**
      * Proper email address.
      */
-    public /*int*/ $Email;
+    public /* int */ $Email;
 
     /**
      * Number of SMS
      */
-    public /*int*/ $Sms;
+    public /* int */ $Sms;
 
     /**
      * Number of delivered messages
      */
-    public /*int*/ $Delivered;
+    public /* int */ $Delivered;
 
     /**
      * Number of opened messages
      */
-    public /*int*/ $Opened;
+    public /* int */ $Opened;
 
     /**
      * Number of clicked messages
      */
-    public /*int*/ $Clicked;
+    public /* int */ $Clicked;
 
     /**
      * Number of unsubscribed messages
      */
-    public /*int*/ $Unsubscribed;
+    public /* int */ $Unsubscribed;
 
     /**
      * Number of complaint messages
      */
-    public /*int*/ $Complaint;
+    public /* int */ $Complaint;
 
     /**
      * Number of bounced messages
      */
-    public /*int*/ $Bounced;
+    public /* int */ $Bounced;
 
     /**
      * Number of inbound messages
      */
-    public /*int*/ $Inbound;
+    public /* int */ $Inbound;
 
     /**
      * Number of manually cancelled messages
      */
-    public /*int*/ $ManualCancel;
+    public /* int */ $ManualCancel;
 
     /**
      * Number of messages flagged with 'Not Delivered'
      */
-    public /*int*/ $NotDelivered;
+    public /* int */ $NotDelivered;
 
 }
 
 /**
  * Domain data, with information about domain records.
  */
-class DomainDetail
-{
+class DomainDetail {
+
     /**
      * Name of selected domain.
      */
-    public /*string*/ $Domain;
+    public /* string */ $Domain;
 
     /**
      * True, if domain is used as default. Otherwise, false,
      */
-    public /*bool*/ $DefaultDomain;
+    public /* bool */ $DefaultDomain;
 
     /**
      * True, if SPF record is verified
      */
-    public /*bool*/ $Spf;
+    public /* bool */ $Spf;
 
     /**
      * True, if DKIM record is verified
      */
-    public /*bool*/ $Dkim;
+    public /* bool */ $Dkim;
 
     /**
      * True, if MX record is verified
      */
-    public /*bool*/ $MX;
+    public /* bool */ $MX;
 
     /**
      * 
      */
-    public /*bool*/ $DMARC;
+    public /* bool */ $DMARC;
 
     /**
      * True, if tracking CNAME record is verified
      */
-    public /*bool*/ $IsRewriteDomainValid;
+    public /* bool */ $IsRewriteDomainValid;
 
     /**
      * True, if verification is available
      */
-    public /*bool*/ $Verify;
+    public /* bool */ $Verify;
 
     /**
      * 
      */
-    public /*ApiTypes\TrackingType*/ $Type;
+    public /* ApiTypes\TrackingType */ $Type;
 
     /**
      * 0 - NotValidated, 1 - Validated successfully, 2 - Invalid, 3 - Broken (tracking was frequnetly verfied in given period and still is invalid)
-            For statuses: 0, 1, 3 tracking will be verified in normal periods
-            For status 2 tracking will be verified in high frequent periods
+      For statuses: 0, 1, 3 tracking will be verified in normal periods
+      For status 2 tracking will be verified in high frequent periods
      */
-    public /*ApiTypes\TrackingValidationStatus*/ $TrackingStatus;
+    public /* ApiTypes\TrackingValidationStatus */ $TrackingStatus;
 
     /**
      * 
      */
-    public /*ApiTypes\CertificateValidationStatus*/ $CertificateStatus;
+    public /* ApiTypes\CertificateValidationStatus */ $CertificateStatus;
 
     /**
      * 
      */
-    public /*string*/ $CertificateValidationError;
+    public /* string */ $CertificateValidationError;
 
     /**
      * 
      */
-    public /*?ApiTypes\TrackingType*/ $TrackingTypeUserRequest;
+    public /* ?ApiTypes\TrackingType */ $TrackingTypeUserRequest;
 
 }
 
 /**
  * Detailed information about email credits
  */
-class EmailCredits
-{
+class EmailCredits {
+
     /**
      * Date in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $Date;
+    public /* DateTime */ $Date;
 
     /**
      * Amount of money in transaction
      */
-    public /*decimal*/ $Amount;
+    public /* decimal */ $Amount;
 
     /**
      * Source of URL of payment
      */
-    public /*string*/ $Source;
+    public /* string */ $Source;
 
     /**
      * Free form field of notes
      */
-    public /*string*/ $Notes;
+    public /* string */ $Notes;
 
 }
 
 /**
  * 
  */
-class EmailJobFailedStatus
-{
-    /**
-     * 
-     */
-    public /*string*/ $Address;
+class EmailJobFailedStatus {
 
     /**
      * 
      */
-    public /*string*/ $Error;
+    public /* string */ $Address;
+
+    /**
+     * 
+     */
+    public /* string */ $Error;
 
     /**
      * RFC Error code
      */
-    public /*int*/ $ErrorCode;
+    public /* int */ $ErrorCode;
 
     /**
      * 
      */
-    public /*string*/ $Category;
+    public /* string */ $Category;
 
 }
 
 /**
  * 
  */
-class EmailJobStatus
-{
+class EmailJobStatus {
+
     /**
      * ID number of your attachment
      */
-    public /*string*/ $ID;
+    public /* string */ $ID;
 
     /**
      * Name of status: submitted, complete, in_progress
      */
-    public /*string*/ $Status;
+    public /* string */ $Status;
 
     /**
      * 
      */
-    public /*int*/ $RecipientsCount;
+    public /* int */ $RecipientsCount;
 
     /**
      * 
      */
-    public /*Array<ApiTypes\EmailJobFailedStatus>*/ $Failed;
+    public /* Array<ApiTypes\EmailJobFailedStatus> */ $Failed;
 
     /**
      * Total emails sent.
      */
-    public /*int*/ $FailedCount;
+    public /* int */ $FailedCount;
 
     /**
      * 
      */
-    public /*Array<string>*/ $Sent;
+    public /* Array<string> */ $Sent;
 
     /**
      * Total emails sent.
      */
-    public /*int*/ $SentCount;
+    public /* int */ $SentCount;
 
     /**
      * Number of delivered messages
      */
-    public /*Array<string>*/ $Delivered;
+    public /* Array<string> */ $Delivered;
 
     /**
      * 
      */
-    public /*int*/ $DeliveredCount;
+    public /* int */ $DeliveredCount;
 
     /**
      * 
      */
-    public /*Array<string>*/ $Pending;
+    public /* Array<string> */ $Pending;
 
     /**
      * 
      */
-    public /*int*/ $PendingCount;
+    public /* int */ $PendingCount;
 
     /**
      * Number of opened messages
      */
-    public /*Array<string>*/ $Opened;
+    public /* Array<string> */ $Opened;
 
     /**
      * Total emails opened.
      */
-    public /*int*/ $OpenedCount;
+    public /* int */ $OpenedCount;
 
     /**
      * Number of clicked messages
      */
-    public /*Array<string>*/ $Clicked;
+    public /* Array<string> */ $Clicked;
 
     /**
      * Total emails clicked
      */
-    public /*int*/ $ClickedCount;
+    public /* int */ $ClickedCount;
 
     /**
      * Number of unsubscribed messages
      */
-    public /*Array<string>*/ $Unsubscribed;
+    public /* Array<string> */ $Unsubscribed;
 
     /**
      * Total emails clicked
      */
-    public /*int*/ $UnsubscribedCount;
+    public /* int */ $UnsubscribedCount;
 
     /**
      * 
      */
-    public /*Array<string>*/ $AbuseReports;
+    public /* Array<string> */ $AbuseReports;
 
     /**
      * 
      */
-    public /*int*/ $AbuseReportsCount;
+    public /* int */ $AbuseReportsCount;
 
     /**
      * List of all MessageIDs for this job.
      */
-    public /*Array<string>*/ $MessageIDs;
+    public /* Array<string> */ $MessageIDs;
 
 }
 
 /**
  * 
  */
-class EmailSend
-{
+class EmailSend {
+
     /**
      * ID number of transaction
      */
-    public /*string*/ $TransactionID;
+    public /* string */ $TransactionID;
 
     /**
      * Unique identifier for this email.
      */
-    public /*string*/ $MessageID;
+    public /* string */ $MessageID;
 
 }
 
 /**
  * Status information of the specified email
  */
-class EmailStatus
-{
+class EmailStatus {
+
     /**
      * Email address this email was sent from.
      */
-    public /*string*/ $From;
+    public /* string */ $From;
 
     /**
      * Email address this email was sent to.
      */
-    public /*string*/ $To;
+    public /* string */ $To;
 
     /**
      * Date the email was submitted.
      */
-    public /*DateTime*/ $Date;
+    public /* DateTime */ $Date;
 
     /**
      * Value of email's status
      */
-    public /*ApiTypes\LogJobStatus*/ $Status;
+    public /* ApiTypes\LogJobStatus */ $Status;
 
     /**
      * Name of email's status
      */
-    public /*string*/ $StatusName;
+    public /* string */ $StatusName;
 
     /**
      * Date of last status change.
      */
-    public /*DateTime*/ $StatusChangeDate;
+    public /* DateTime */ $StatusChangeDate;
 
     /**
      * Detailed error or bounced message.
      */
-    public /*string*/ $ErrorMessage;
+    public /* string */ $ErrorMessage;
 
     /**
      * ID number of transaction
      */
-    public /*Guid*/ $TransactionID;
+    public /* Guid */ $TransactionID;
 
 }
 
 /**
  * Email details formatted in json
  */
-class EmailView
-{
+class EmailView {
+
     /**
      * Body (text) of your message.
      */
-    public /*string*/ $Body;
+    public /* string */ $Body;
 
     /**
      * Default subject of email.
      */
-    public /*string*/ $Subject;
+    public /* string */ $Subject;
 
     /**
      * Starting date for search in YYYY-MM-DDThh:mm:ss format.
      */
-    public /*string*/ $From;
+    public /* string */ $From;
 
 }
 
@@ -4383,8 +4397,8 @@ class EmailView
  * Encoding type for the email headers
  * Enum class
  */
-abstract class EncodingType
-{
+abstract class EncodingType {
+
     /**
      * Encoding of the email is provided by the sender and not altered.
      */
@@ -4425,42 +4439,42 @@ abstract class EncodingType
 /**
  * Record of exported data from the system.
  */
-class Export
-{
+class Export {
+
     /**
      * 
      */
-    public /*Guid*/ $PublicExportID;
+    public /* Guid */ $PublicExportID;
 
     /**
      * Date the export was created
      */
-    public /*DateTime*/ $DateAdded;
+    public /* DateTime */ $DateAdded;
 
     /**
      * Type of export
      */
-    public /*string*/ $Type;
+    public /* string */ $Type;
 
     /**
      * Current status of export
      */
-    public /*string*/ $Status;
+    public /* string */ $Status;
 
     /**
      * Long description of the export
      */
-    public /*string*/ $Info;
+    public /* string */ $Info;
 
     /**
      * Name of the file
      */
-    public /*string*/ $Filename;
+    public /* string */ $Filename;
 
     /**
      * Link to download the export
      */
-    public /*string*/ $Link;
+    public /* string */ $Link;
 
 }
 
@@ -4468,8 +4482,8 @@ class Export
  * Type of export
  * Enum class
  */
-abstract class ExportFileFormats
-{
+abstract class ExportFileFormats {
+
     /**
      * Export in comma separated values format.
      */
@@ -4490,12 +4504,12 @@ abstract class ExportFileFormats
 /**
  * 
  */
-class ExportLink
-{
+class ExportLink {
+
     /**
      * Direct URL to the exported file
      */
-    public /*string*/ $Link;
+    public /* string */ $Link;
 
 }
 
@@ -4503,8 +4517,8 @@ class ExportLink
  * Current status of export
  * Enum class
  */
-abstract class ExportStatus
-{
+abstract class ExportStatus {
+
     /**
      * Export had an error and can not be downloaded.
      */
@@ -4530,32 +4544,32 @@ abstract class ExportStatus
 /**
  * Number of Exports, grouped by export type
  */
-class ExportTypeCounts
-{
-    /**
-     * 
-     */
-    public /*long*/ $Log;
+class ExportTypeCounts {
 
     /**
      * 
      */
-    public /*long*/ $Contact;
+    public /* long */ $Log;
+
+    /**
+     * 
+     */
+    public /* long */ $Contact;
 
     /**
      * Json representation of a campaign
      */
-    public /*long*/ $Campaign;
+    public /* long */ $Campaign;
 
     /**
      * True, if you have enabled link tracking. Otherwise, false
      */
-    public /*long*/ $LinkTracking;
+    public /* long */ $LinkTracking;
 
     /**
      * Json representation of a survey
      */
-    public /*long*/ $Survey;
+    public /* long */ $Survey;
 
 }
 
@@ -4563,8 +4577,8 @@ class ExportTypeCounts
  * 
  * Enum class
  */
-abstract class IntervalType
-{
+abstract class IntervalType {
+
     /**
      * Daily overview
      */
@@ -4580,103 +4594,103 @@ abstract class IntervalType
 /**
  * Object containig tracking data.
  */
-class LinkTrackingDetails
-{
+class LinkTrackingDetails {
+
     /**
      * Number of items.
      */
-    public /*int*/ $Count;
+    public /* int */ $Count;
 
     /**
      * True, if there are more detailed data available. Otherwise, false
      */
-    public /*bool*/ $MoreAvailable;
+    public /* bool */ $MoreAvailable;
 
     /**
      * 
      */
-    public /*Array<ApiTypes\TrackedLink>*/ $TrackedLink;
+    public /* Array<ApiTypes\TrackedLink> */ $TrackedLink;
 
 }
 
 /**
  * List of Lists, with detailed data about its contents.
  */
-class EEList
-{
+class EEList {
+
     /**
      * ID number of selected list.
      */
-    public /*int*/ $ListID;
+    public /* int */ $ListID;
 
     /**
      * Name of your list.
      */
-    public /*string*/ $ListName;
+    public /* string */ $ListName;
 
     /**
      * Number of items.
      */
-    public /*int*/ $Count;
+    public /* int */ $Count;
 
     /**
      * ID code of list
      */
-    public /*?Guid*/ $PublicListID;
+    public /* ?Guid */ $PublicListID;
 
     /**
      * Date of creation in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $DateAdded;
+    public /* DateTime */ $DateAdded;
 
     /**
      * True: Allow unsubscribing from this list. Otherwise, false
      */
-    public /*bool*/ $AllowUnsubscribe;
+    public /* bool */ $AllowUnsubscribe;
 
     /**
      * Query used for filtering.
      */
-    public /*string*/ $Rule;
+    public /* string */ $Rule;
 
 }
 
 /**
  * Detailed information about litmus credits
  */
-class LitmusCredits
-{
+class LitmusCredits {
+
     /**
      * Date in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $Date;
+    public /* DateTime */ $Date;
 
     /**
      * Amount of money in transaction
      */
-    public /*decimal*/ $Amount;
+    public /* decimal */ $Amount;
 
 }
 
 /**
  * Logs for selected date range
  */
-class Log
-{
+class Log {
+
     /**
      * Starting date for search in YYYY-MM-DDThh:mm:ss format.
      */
-    public /*?DateTime*/ $From;
+    public /* ?DateTime */ $From;
 
     /**
      * Ending date for search in YYYY-MM-DDThh:mm:ss format.
      */
-    public /*?DateTime*/ $To;
+    public /* ?DateTime */ $To;
 
     /**
      * Number of recipients
      */
-    public /*Array<ApiTypes\Recipient>*/ $Recipients;
+    public /* Array<ApiTypes\Recipient> */ $Recipients;
 
 }
 
@@ -4684,8 +4698,8 @@ class Log
  * 
  * Enum class
  */
-abstract class LogJobStatus
-{
+abstract class LogJobStatus {
+
     /**
      * All emails
      */
@@ -4741,114 +4755,114 @@ abstract class LogJobStatus
 /**
  * Summary of log status, based on specified date range.
  */
-class LogStatusSummary
-{
+class LogStatusSummary {
+
     /**
      * Starting date for search in YYYY-MM-DDThh:mm:ss format.
      */
-    public /*string*/ $From;
+    public /* string */ $From;
 
     /**
      * Ending date for search in YYYY-MM-DDThh:mm:ss format.
      */
-    public /*string*/ $To;
+    public /* string */ $To;
 
     /**
      * Overall duration
      */
-    public /*double*/ $Duration;
+    public /* double */ $Duration;
 
     /**
      * Number of recipients
      */
-    public /*long*/ $Recipients;
+    public /* long */ $Recipients;
 
     /**
      * Number of emails
      */
-    public /*long*/ $EmailTotal;
+    public /* long */ $EmailTotal;
 
     /**
      * Number of SMS
      */
-    public /*long*/ $SmsTotal;
+    public /* long */ $SmsTotal;
 
     /**
      * Number of delivered messages
      */
-    public /*long*/ $Delivered;
+    public /* long */ $Delivered;
 
     /**
      * Number of bounced messages
      */
-    public /*long*/ $Bounced;
+    public /* long */ $Bounced;
 
     /**
      * Number of messages in progress
      */
-    public /*long*/ $InProgress;
+    public /* long */ $InProgress;
 
     /**
      * Number of opened messages
      */
-    public /*long*/ $Opened;
+    public /* long */ $Opened;
 
     /**
      * Number of clicked messages
      */
-    public /*long*/ $Clicked;
+    public /* long */ $Clicked;
 
     /**
      * Number of unsubscribed messages
      */
-    public /*long*/ $Unsubscribed;
+    public /* long */ $Unsubscribed;
 
     /**
      * Number of complaint messages
      */
-    public /*long*/ $Complaints;
+    public /* long */ $Complaints;
 
     /**
      * Number of inbound messages
      */
-    public /*long*/ $Inbound;
+    public /* long */ $Inbound;
 
     /**
      * Number of manually cancelled messages
      */
-    public /*long*/ $ManualCancel;
+    public /* long */ $ManualCancel;
 
     /**
      * Number of messages flagged with 'Not Delivered'
      */
-    public /*long*/ $NotDelivered;
+    public /* long */ $NotDelivered;
 
     /**
      * ID number of template used
      */
-    public /*bool*/ $TemplateChannel;
+    public /* bool */ $TemplateChannel;
 
 }
 
 /**
  * Overall log summary information.
  */
-class LogSummary
-{
+class LogSummary {
+
     /**
      * Summary of log status, based on specified date range.
      */
-    public /*ApiTypes\LogStatusSummary*/ $LogStatusSummary;
+    public /* ApiTypes\LogStatusSummary */ $LogStatusSummary;
 
     /**
      * Summary of bounced categories, based on specified date range.
      */
-    public /*ApiTypes\BouncedCategorySummary*/ $BouncedCategorySummary;
+    public /* ApiTypes\BouncedCategorySummary */ $BouncedCategorySummary;
 
     /**
      * Daily summary of log status, based on specified date range.
      */
-    public /*Array<ApiTypes\DailyLogStatusSummary>*/ $DailyLogStatusSummary;
+    public /* Array<ApiTypes\DailyLogStatusSummary> */ $DailyLogStatusSummary;
 
 }
 
@@ -4856,8 +4870,8 @@ class LogSummary
  * 
  * Enum class
  */
-abstract class MessageCategory
-{
+abstract class MessageCategory {
+
     /**
      * 
      */
@@ -4948,37 +4962,37 @@ abstract class MessageCategory
 /**
  * Queue of notifications
  */
-class NotificationQueue
-{
+class NotificationQueue {
+
     /**
      * Creation date.
      */
-    public /*string*/ $DateCreated;
+    public /* string */ $DateCreated;
 
     /**
      * Date of last status change.
      */
-    public /*string*/ $StatusChangeDate;
+    public /* string */ $StatusChangeDate;
 
     /**
      * Actual status.
      */
-    public /*string*/ $NewStatus;
+    public /* string */ $NewStatus;
 
     /**
      * 
      */
-    public /*string*/ $Reference;
+    public /* string */ $Reference;
 
     /**
      * Error message.
      */
-    public /*string*/ $ErrorMessage;
+    public /* string */ $ErrorMessage;
 
     /**
      * Number of previous delivery attempts
      */
-    public /*string*/ $RetryCount;
+    public /* string */ $RetryCount;
 
 }
 
@@ -4986,8 +5000,8 @@ class NotificationQueue
  * 
  * Enum class
  */
-abstract class NotificationType
-{
+abstract class NotificationType {
+
     /**
      * Both, email and web, notifications
      */
@@ -5008,89 +5022,89 @@ abstract class NotificationType
 /**
  * Detailed information about existing money transfers.
  */
-class Payment
-{
+class Payment {
+
     /**
      * Date in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $Date;
+    public /* DateTime */ $Date;
 
     /**
      * Amount of money in transaction
      */
-    public /*decimal*/ $Amount;
+    public /* decimal */ $Amount;
 
     /**
      * Source of URL of payment
      */
-    public /*string*/ $Source;
+    public /* string */ $Source;
 
 }
 
 /**
  * Basic information about your profile
  */
-class Profile
-{
+class Profile {
+
     /**
      * First name.
      */
-    public /*string*/ $FirstName;
+    public /* string */ $FirstName;
 
     /**
      * Last name.
      */
-    public /*string*/ $LastName;
+    public /* string */ $LastName;
 
     /**
      * Company name.
      */
-    public /*string*/ $Company;
+    public /* string */ $Company;
 
     /**
      * First line of address.
      */
-    public /*string*/ $Address1;
+    public /* string */ $Address1;
 
     /**
      * Second line of address.
      */
-    public /*string*/ $Address2;
+    public /* string */ $Address2;
 
     /**
      * City.
      */
-    public /*string*/ $City;
+    public /* string */ $City;
 
     /**
      * State or province.
      */
-    public /*string*/ $State;
+    public /* string */ $State;
 
     /**
      * Zip/postal code.
      */
-    public /*string*/ $Zip;
+    public /* string */ $Zip;
 
     /**
      * Numeric ID of country. A file with the list of countries is available <a href="http://api.elasticemail.com/public/countries"><b>here</b></a>
      */
-    public /*?int*/ $CountryID;
+    public /* ?int */ $CountryID;
 
     /**
      * Phone number
      */
-    public /*string*/ $Phone;
+    public /* string */ $Phone;
 
     /**
      * Proper email address.
      */
-    public /*string*/ $Email;
+    public /* string */ $Email;
 
     /**
      * Code used for tax purposes.
      */
-    public /*string*/ $TaxCode;
+    public /* string */ $TaxCode;
 
 }
 
@@ -5098,8 +5112,8 @@ class Profile
  * 
  * Enum class
  */
-abstract class QuestionType
-{
+abstract class QuestionType {
+
     /**
      * 
      */
@@ -5135,399 +5149,399 @@ abstract class QuestionType
 /**
  * Detailed information about message recipient
  */
-class Recipient
-{
+class Recipient {
+
     /**
      * True, if message is SMS. Otherwise, false
      */
-    public /*bool*/ $IsSms;
+    public /* bool */ $IsSms;
 
     /**
      * ID number of selected message.
      */
-    public /*string*/ $MsgID;
+    public /* string */ $MsgID;
 
     /**
      * Ending date for search in YYYY-MM-DDThh:mm:ss format.
      */
-    public /*string*/ $To;
+    public /* string */ $To;
 
     /**
      * Name of recipient's status: Submitted, ReadyToSend, WaitingToRetry, Sending, Bounced, Sent, Opened, Clicked, Unsubscribed, AbuseReport
      */
-    public /*string*/ $Status;
+    public /* string */ $Status;
 
     /**
      * Name of selected Channel.
      */
-    public /*string*/ $Channel;
+    public /* string */ $Channel;
 
     /**
      * Creation date
      */
-    public /*string*/ $Date;
+    public /* string */ $Date;
 
     /**
      * 
      */
-    public /*string*/ $DateSent;
+    public /* string */ $DateSent;
 
     /**
      * 
      */
-    public /*string*/ $DateOpened;
+    public /* string */ $DateOpened;
 
     /**
      * 
      */
-    public /*string*/ $DateClicked;
+    public /* string */ $DateClicked;
 
     /**
      * Content of message, HTML encoded
      */
-    public /*string*/ $Message;
+    public /* string */ $Message;
 
     /**
      * True, if message category should be shown. Otherwise, false
      */
-    public /*bool*/ $ShowCategory;
+    public /* bool */ $ShowCategory;
 
     /**
      * Name of message category
      */
-    public /*string*/ $MessageCategory;
+    public /* string */ $MessageCategory;
 
     /**
      * ID of message category
      */
-    public /*ApiTypes\MessageCategory*/ $MessageCategoryID;
+    public /* ApiTypes\MessageCategory */ $MessageCategoryID;
 
     /**
      * Date of last status change.
      */
-    public /*string*/ $StatusChangeDate;
+    public /* string */ $StatusChangeDate;
 
     /**
      * Date of next try
      */
-    public /*string*/ $NextTryOn;
+    public /* string */ $NextTryOn;
 
     /**
      * Default subject of email.
      */
-    public /*string*/ $Subject;
+    public /* string */ $Subject;
 
     /**
      * Default From: email address.
      */
-    public /*string*/ $FromEmail;
+    public /* string */ $FromEmail;
 
     /**
      * ID of certain mail job
      */
-    public /*string*/ $JobID;
+    public /* string */ $JobID;
 
     /**
      * True, if message is a SMS and status is not yet confirmed. Otherwise, false
      */
-    public /*bool*/ $SmsUpdateRequired;
+    public /* bool */ $SmsUpdateRequired;
 
     /**
      * Content of message
      */
-    public /*string*/ $TextMessage;
+    public /* string */ $TextMessage;
 
     /**
      * Comma separated ID numbers of messages.
      */
-    public /*string*/ $MessageSid;
+    public /* string */ $MessageSid;
 
     /**
      * Recipient's last bounce error because of which this e-mail was suppressed
      */
-    public /*string*/ $ContactLastError;
+    public /* string */ $ContactLastError;
 
 }
 
 /**
  * Referral details for this account.
  */
-class Referral
-{
+class Referral {
+
     /**
      * Current amount of dolars you have from referring.
      */
-    public /*decimal*/ $CurrentReferralCredit;
+    public /* decimal */ $CurrentReferralCredit;
 
     /**
      * Number of active referrals.
      */
-    public /*long*/ $CurrentReferralCount;
+    public /* long */ $CurrentReferralCount;
 
 }
 
 /**
  * Detailed sending reputation of your account.
  */
-class ReputationDetail
-{
+class ReputationDetail {
+
     /**
      * Overall reputation impact, based on the most important factors.
      */
-    public /*ApiTypes\ReputationImpact*/ $Impact;
+    public /* ApiTypes\ReputationImpact */ $Impact;
 
     /**
      * Percent of Complaining users - those, who do not want to receive email from you.
      */
-    public /*double*/ $AbusePercent;
+    public /* double */ $AbusePercent;
 
     /**
      * Percent of Unknown users - users that couldn't be found
      */
-    public /*double*/ $UnknownUsersPercent;
+    public /* double */ $UnknownUsersPercent;
 
     /**
      * 
      */
-    public /*double*/ $OpenedPercent;
+    public /* double */ $OpenedPercent;
 
     /**
      * 
      */
-    public /*double*/ $ClickedPercent;
+    public /* double */ $ClickedPercent;
 
     /**
      * Penalty from messages marked as spam.
      */
-    public /*double*/ $AverageSpamScore;
+    public /* double */ $AverageSpamScore;
 
     /**
      * Percent of Bounced users
      */
-    public /*double*/ $FailedSpamPercent;
+    public /* double */ $FailedSpamPercent;
 
     /**
      * Points from quantity of your emails.
      */
-    public /*double*/ $RepEmailsSent;
+    public /* double */ $RepEmailsSent;
 
     /**
      * Average reputation.
      */
-    public /*double*/ $AverageReputation;
+    public /* double */ $AverageReputation;
 
     /**
      * Actual price level.
      */
-    public /*double*/ $PriceLevelReputation;
+    public /* double */ $PriceLevelReputation;
 
     /**
      * Reputation needed to change pricing.
      */
-    public /*double*/ $NextPriceLevelReputation;
+    public /* double */ $NextPriceLevelReputation;
 
     /**
      * Amount of emails sent from this account
      */
-    public /*string*/ $PriceLevel;
+    public /* string */ $PriceLevel;
 
     /**
      * True, if tracking domain is correctly configured. Otherwise, false.
      */
-    public /*bool*/ $TrackingDomainValid;
+    public /* bool */ $TrackingDomainValid;
 
     /**
      * True, if sending domain is correctly configured. Otherwise, false.
      */
-    public /*bool*/ $SenderDomainValid;
+    public /* bool */ $SenderDomainValid;
 
 }
 
 /**
  * Reputation history of your account.
  */
-class ReputationHistory
-{
+class ReputationHistory {
+
     /**
      * Creation date.
      */
-    public /*string*/ $DateCreated;
+    public /* string */ $DateCreated;
 
     /**
      * Percent of Complaining users - those, who do not want to receive email from you.
      */
-    public /*double*/ $AbusePercent;
+    public /* double */ $AbusePercent;
 
     /**
      * Percent of Unknown users - users that couldn't be found
      */
-    public /*double*/ $UnknownUsersPercent;
+    public /* double */ $UnknownUsersPercent;
 
     /**
      * 
      */
-    public /*double*/ $OpenedPercent;
+    public /* double */ $OpenedPercent;
 
     /**
      * 
      */
-    public /*double*/ $ClickedPercent;
+    public /* double */ $ClickedPercent;
 
     /**
      * Penalty from messages marked as spam.
      */
-    public /*double*/ $AverageSpamScore;
+    public /* double */ $AverageSpamScore;
 
     /**
      * Points from proper setup of your account
      */
-    public /*double*/ $SetupScore;
+    public /* double */ $SetupScore;
 
     /**
      * Points from quantity of your emails.
      */
-    public /*double*/ $RepEmailsSent;
+    public /* double */ $RepEmailsSent;
 
     /**
      * Numeric reputation
      */
-    public /*double*/ $Reputation;
+    public /* double */ $Reputation;
 
 }
 
 /**
  * Overall reputation impact, based on the most important factors.
  */
-class ReputationImpact
-{
+class ReputationImpact {
+
     /**
      * Abuses - mails sent to user without their consent
      */
-    public /*double*/ $Abuse;
+    public /* double */ $Abuse;
 
     /**
      * Users, that could not be reached.
      */
-    public /*double*/ $UnknownUsers;
+    public /* double */ $UnknownUsers;
 
     /**
      * Number of opened messages
      */
-    public /*double*/ $Opened;
+    public /* double */ $Opened;
 
     /**
      * Number of clicked messages
      */
-    public /*double*/ $Clicked;
+    public /* double */ $Clicked;
 
     /**
      * Penalty from messages marked as spam.
      */
-    public /*double*/ $AverageSpamScore;
+    public /* double */ $AverageSpamScore;
 
     /**
      * Content analysis.
      */
-    public /*double*/ $ServerFilter;
+    public /* double */ $ServerFilter;
 
     /**
      * Tracking domain.
      */
-    public /*double*/ $TrackingDomain;
+    public /* double */ $TrackingDomain;
 
     /**
      * Sending domain.
      */
-    public /*double*/ $SenderDomain;
+    public /* double */ $SenderDomain;
 
 }
 
 /**
  * Information about Contact Segment, selected by RULE.
  */
-class Segment
-{
+class Segment {
+
     /**
      * ID number of your segment.
      */
-    public /*int*/ $SegmentID;
+    public /* int */ $SegmentID;
 
     /**
      * Filename
      */
-    public /*string*/ $Name;
+    public /* string */ $Name;
 
     /**
      * Query used for filtering.
      */
-    public /*string*/ $Rule;
+    public /* string */ $Rule;
 
     /**
      * Number of items from last check.
      */
-    public /*long*/ $LastCount;
+    public /* long */ $LastCount;
 
     /**
      * History of segment information.
      */
-    public /*Array<ApiTypes\SegmentHistory>*/ $History;
+    public /* Array<ApiTypes\SegmentHistory> */ $History;
 
 }
 
 /**
  * Segment History
  */
-class SegmentHistory
-{
+class SegmentHistory {
+
     /**
      * ID number of history.
      */
-    public /*int*/ $SegmentHistoryID;
+    public /* int */ $SegmentHistoryID;
 
     /**
      * ID number of your segment.
      */
-    public /*int*/ $SegmentID;
+    public /* int */ $SegmentID;
 
     /**
      * Date in YYYY-MM-DD format
      */
-    public /*int*/ $Day;
+    public /* int */ $Day;
 
     /**
      * Number of items.
      */
-    public /*long*/ $Count;
+    public /* long */ $Count;
 
     /**
      * 
      */
-    public /*long*/ $EngagedCount;
+    public /* long */ $EngagedCount;
 
     /**
      * 
      */
-    public /*long*/ $ActiveCount;
+    public /* long */ $ActiveCount;
 
     /**
      * 
      */
-    public /*long*/ $BouncedCount;
+    public /* long */ $BouncedCount;
 
     /**
      * Total emails clicked
      */
-    public /*long*/ $UnsubscribedCount;
+    public /* long */ $UnsubscribedCount;
 
     /**
      * 
      */
-    public /*long*/ $AbuseCount;
+    public /* long */ $AbuseCount;
 
     /**
      * 
      */
-    public /*long*/ $InactiveCount;
+    public /* long */ $InactiveCount;
 
 }
 
@@ -5535,8 +5549,8 @@ class SegmentHistory
  * 
  * Enum class
  */
-abstract class SendingPermission
-{
+abstract class SendingPermission {
+
     /**
      * Sending not allowed.
      */
@@ -5582,64 +5596,64 @@ abstract class SendingPermission
 /**
  * Spam check of specified message.
  */
-class SpamCheck
-{
+class SpamCheck {
+
     /**
      * Total spam score from
      */
-    public /*string*/ $TotalScore;
+    public /* string */ $TotalScore;
 
     /**
      * Date in YYYY-MM-DDThh:ii:ss format
      */
-    public /*string*/ $Date;
+    public /* string */ $Date;
 
     /**
      * Default subject of email.
      */
-    public /*string*/ $Subject;
+    public /* string */ $Subject;
 
     /**
      * Default From: email address.
      */
-    public /*string*/ $FromEmail;
+    public /* string */ $FromEmail;
 
     /**
      * ID number of selected message.
      */
-    public /*string*/ $MsgID;
+    public /* string */ $MsgID;
 
     /**
      * Name of selected channel.
      */
-    public /*string*/ $ChannelName;
+    public /* string */ $ChannelName;
 
     /**
      * 
      */
-    public /*Array<ApiTypes\SpamRule>*/ $Rules;
+    public /* Array<ApiTypes\SpamRule> */ $Rules;
 
 }
 
 /**
  * Single spam score
  */
-class SpamRule
-{
+class SpamRule {
+
     /**
      * Spam score
      */
-    public /*string*/ $Score;
+    public /* string */ $Score;
 
     /**
      * Name of rule
      */
-    public /*string*/ $Key;
+    public /* string */ $Key;
 
     /**
      * Description of rule.
      */
-    public /*string*/ $Description;
+    public /* string */ $Description;
 
 }
 
@@ -5647,8 +5661,8 @@ class SpamRule
  * 
  * Enum class
  */
-abstract class SplitOptimization
-{
+abstract class SplitOptimization {
+
     /**
      * Number of opened messages
      */
@@ -5664,364 +5678,364 @@ abstract class SplitOptimization
 /**
  * Subaccount. Contains detailed data of your Subaccount.
  */
-class SubAccount
-{
+class SubAccount {
+
     /**
      * Public key for limited access to your account such as contact/add so you can use it safely on public websites.
      */
-    public /*string*/ $PublicAccountID;
+    public /* string */ $PublicAccountID;
 
     /**
      * ApiKey that gives you access to our SMTP and HTTP API's.
      */
-    public /*string*/ $ApiKey;
+    public /* string */ $ApiKey;
 
     /**
      * Proper email address.
      */
-    public /*string*/ $Email;
+    public /* string */ $Email;
 
     /**
      * ID number of mailer
      */
-    public /*string*/ $MailerID;
+    public /* string */ $MailerID;
 
     /**
      * Name of your custom IP Pool to be used in the sending process
      */
-    public /*string*/ $PoolName;
+    public /* string */ $PoolName;
 
     /**
      * Date of last activity on account
      */
-    public /*string*/ $LastActivity;
+    public /* string */ $LastActivity;
 
     /**
      * Amount of email credits
      */
-    public /*string*/ $EmailCredits;
+    public /* string */ $EmailCredits;
 
     /**
      * True, if account needs credits to send emails. Otherwise, false
      */
-    public /*bool*/ $RequiresEmailCredits;
+    public /* bool */ $RequiresEmailCredits;
 
     /**
      * Amount of credits added to account automatically
      */
-    public /*double*/ $MonthlyRefillCredits;
+    public /* double */ $MonthlyRefillCredits;
 
     /**
      * True, if account needs credits to buy templates. Otherwise, false
      */
-    public /*bool*/ $RequiresTemplateCredits;
+    public /* bool */ $RequiresTemplateCredits;
 
     /**
      * Amount of Litmus credits
      */
-    public /*decimal*/ $LitmusCredits;
+    public /* decimal */ $LitmusCredits;
 
     /**
      * True, if account is able to send template tests to Litmus. Otherwise, false
      */
-    public /*bool*/ $EnableLitmusTest;
+    public /* bool */ $EnableLitmusTest;
 
     /**
      * True, if account needs credits to send emails. Otherwise, false
      */
-    public /*bool*/ $RequiresLitmusCredits;
+    public /* bool */ $RequiresLitmusCredits;
 
     /**
      * True, if account can buy templates on its own. Otherwise, false
      */
-    public /*bool*/ $EnablePremiumTemplates;
+    public /* bool */ $EnablePremiumTemplates;
 
     /**
      * True, if account can request for private IP on its own. Otherwise, false
      */
-    public /*bool*/ $EnablePrivateIPRequest;
+    public /* bool */ $EnablePrivateIPRequest;
 
     /**
      * Amount of emails sent from this account
      */
-    public /*long*/ $TotalEmailsSent;
+    public /* long */ $TotalEmailsSent;
 
     /**
      * Percent of Unknown users - users that couldn't be found
      */
-    public /*double*/ $UnknownUsersPercent;
+    public /* double */ $UnknownUsersPercent;
 
     /**
      * Percent of Complaining users - those, who do not want to receive email from you.
      */
-    public /*double*/ $AbusePercent;
+    public /* double */ $AbusePercent;
 
     /**
      * Percent of Bounced users
      */
-    public /*double*/ $FailedSpamPercent;
+    public /* double */ $FailedSpamPercent;
 
     /**
      * Numeric reputation
      */
-    public /*double*/ $Reputation;
+    public /* double */ $Reputation;
 
     /**
      * Amount of emails account can send daily
      */
-    public /*long*/ $DailySendLimit;
+    public /* long */ $DailySendLimit;
 
     /**
      * Name of account's status: Deleted, Disabled, UnderReview, NoPaymentsAllowed, NeverSignedIn, Active, SystemPaused
      */
-    public /*string*/ $Status;
+    public /* string */ $Status;
 
     /**
      * Maximum size of email including attachments in MB's
      */
-    public /*int*/ $EmailSizeLimit;
+    public /* int */ $EmailSizeLimit;
 
     /**
      * Maximum number of contacts the account can have
      */
-    public /*int*/ $MaxContacts;
+    public /* int */ $MaxContacts;
 
     /**
      * True, if you want to use Contact Delivery Tools.  Otherwise, false
      */
-    public /*bool*/ $EnableContactFeatures;
+    public /* bool */ $EnableContactFeatures;
 
     /**
      * Sending permission setting for account
      */
-    public /*ApiTypes\SendingPermission*/ $SendingPermission;
+    public /* ApiTypes\SendingPermission */ $SendingPermission;
 
 }
 
 /**
  * Detailed account settings.
  */
-class SubAccountSettings
-{
+class SubAccountSettings {
+
     /**
      * Proper email address.
      */
-    public /*string*/ $Email;
+    public /* string */ $Email;
 
     /**
      * True, if account needs credits to send emails. Otherwise, false
      */
-    public /*bool*/ $RequiresEmailCredits;
+    public /* bool */ $RequiresEmailCredits;
 
     /**
      * True, if account needs credits to buy templates. Otherwise, false
      */
-    public /*bool*/ $RequiresTemplateCredits;
+    public /* bool */ $RequiresTemplateCredits;
 
     /**
      * Amount of credits added to account automatically
      */
-    public /*double*/ $MonthlyRefillCredits;
+    public /* double */ $MonthlyRefillCredits;
 
     /**
      * Amount of Litmus credits
      */
-    public /*decimal*/ $LitmusCredits;
+    public /* decimal */ $LitmusCredits;
 
     /**
      * True, if account is able to send template tests to Litmus. Otherwise, false
      */
-    public /*bool*/ $EnableLitmusTest;
+    public /* bool */ $EnableLitmusTest;
 
     /**
      * True, if account needs credits to send emails. Otherwise, false
      */
-    public /*bool*/ $RequiresLitmusCredits;
+    public /* bool */ $RequiresLitmusCredits;
 
     /**
      * Maximum size of email including attachments in MB's
      */
-    public /*int*/ $EmailSizeLimit;
+    public /* int */ $EmailSizeLimit;
 
     /**
      * Amount of emails account can send daily
      */
-    public /*int*/ $DailySendLimit;
+    public /* int */ $DailySendLimit;
 
     /**
      * Maximum number of contacts the account can have
      */
-    public /*int*/ $MaxContacts;
+    public /* int */ $MaxContacts;
 
     /**
      * True, if account can request for private IP on its own. Otherwise, false
      */
-    public /*bool*/ $EnablePrivateIPRequest;
+    public /* bool */ $EnablePrivateIPRequest;
 
     /**
      * True, if you want to use Contact Delivery Tools.  Otherwise, false
      */
-    public /*bool*/ $EnableContactFeatures;
+    public /* bool */ $EnableContactFeatures;
 
     /**
      * Sending permission setting for account
      */
-    public /*ApiTypes\SendingPermission*/ $SendingPermission;
+    public /* ApiTypes\SendingPermission */ $SendingPermission;
 
     /**
      * Name of your custom IP Pool to be used in the sending process
      */
-    public /*string*/ $PoolName;
+    public /* string */ $PoolName;
 
     /**
      * Public key for limited access to your account such as contact/add so you can use it safely on public websites.
      */
-    public /*string*/ $PublicAccountID;
+    public /* string */ $PublicAccountID;
 
 }
 
 /**
  * A survey object
  */
-class Survey
-{
+class Survey {
+
     /**
      * Survey identifier
      */
-    public /*Guid*/ $PublicSurveyID;
+    public /* Guid */ $PublicSurveyID;
 
     /**
      * Creation date.
      */
-    public /*DateTime*/ $DateCreated;
+    public /* DateTime */ $DateCreated;
 
     /**
      * Last change date
      */
-    public /*?DateTime*/ $DateUpdated;
+    public /* ?DateTime */ $DateUpdated;
 
     /**
      * 
      */
-    public /*?DateTime*/ $ExpiryDate;
+    public /* ?DateTime */ $ExpiryDate;
 
     /**
      * Filename
      */
-    public /*string*/ $Name;
+    public /* string */ $Name;
 
     /**
      * Activate, delete, or pause your survey
      */
-    public /*ApiTypes\SurveyStatus*/ $Status;
+    public /* ApiTypes\SurveyStatus */ $Status;
 
     /**
      * Number of results count
      */
-    public /*int*/ $ResultCount;
+    public /* int */ $ResultCount;
 
     /**
      * 
      */
-    public /*Array<ApiTypes\SurveyStep>*/ $SurveySteps;
+    public /* Array<ApiTypes\SurveyStep> */ $SurveySteps;
 
     /**
      * URL of the survey
      */
-    public /*string*/ $SurveyLink;
+    public /* string */ $SurveyLink;
 
 }
 
 /**
  * Object with the single answer's data
  */
-class SurveyResultAnswerInfo
-{
+class SurveyResultAnswerInfo {
+
     /**
      * Answer's content
      */
-    public /*string*/ $content;
+    public /* string */ $content;
 
     /**
      * Identifier of the step
      */
-    public /*int*/ $surveystepid;
+    public /* int */ $surveystepid;
 
     /**
      * Identifier of the answer of the step
      */
-    public /*string*/ $surveystepanswerid;
+    public /* string */ $surveystepanswerid;
 
 }
 
 /**
  * Single answer's data with user's specific info
  */
-class SurveyResultInfo
-{
+class SurveyResultInfo {
+
     /**
      * Identifier of the result
      */
-    public /*string*/ $SurveyResultID;
+    public /* string */ $SurveyResultID;
 
     /**
      * IP address
      */
-    public /*string*/ $CreatedFromIP;
+    public /* string */ $CreatedFromIP;
 
     /**
      * Completion date
      */
-    public /*DateTime*/ $DateCompleted;
+    public /* DateTime */ $DateCompleted;
 
     /**
      * Start date
      */
-    public /*DateTime*/ $DateStart;
+    public /* DateTime */ $DateStart;
 
     /**
      * Answers for the survey
      */
-    public /*Array<ApiTypes\SurveyResultAnswerInfo>*/ $SurveyResultAnswers;
+    public /* Array<ApiTypes\SurveyResultAnswerInfo> */ $SurveyResultAnswers;
 
 }
 
 /**
  * 
  */
-class SurveyResultsAnswer
-{
+class SurveyResultsAnswer {
+
     /**
      * Identifier of the answer of the step
      */
-    public /*string*/ $SurveyStepAnswerID;
+    public /* string */ $SurveyStepAnswerID;
 
     /**
      * Number of items.
      */
-    public /*int*/ $Count;
+    public /* int */ $Count;
 
     /**
      * Answer's content
      */
-    public /*string*/ $Content;
+    public /* string */ $Content;
 
 }
 
 /**
  * Data on the survey's result
  */
-class SurveyResultsSummaryInfo
-{
+class SurveyResultsSummaryInfo {
+
     /**
      * Number of items.
      */
-    public /*int*/ $Count;
+    public /* int */ $Count;
 
     /**
      * Summary statistics
      */
-    public /*array<int, ApiTypes\List`1>*/ $Summary;
+    public /* array<int, ApiTypes\List`1> */ $Summary;
 
 }
 
@@ -6029,8 +6043,8 @@ class SurveyResultsSummaryInfo
  * 
  * Enum class
  */
-abstract class SurveyStatus
-{
+abstract class SurveyStatus {
+
     /**
      * The survey is deleted
      */
@@ -6051,64 +6065,64 @@ abstract class SurveyStatus
 /**
  * Survey's single step info with the answers
  */
-class SurveyStep
-{
+class SurveyStep {
+
     /**
      * Identifier of the step
      */
-    public /*int*/ $SurveyStepID;
+    public /* int */ $SurveyStepID;
 
     /**
      * Type of the step
      */
-    public /*ApiTypes\SurveyStepType*/ $SurveyStepType;
+    public /* ApiTypes\SurveyStepType */ $SurveyStepType;
 
     /**
      * Type of the question
      */
-    public /*ApiTypes\QuestionType*/ $QuestionType;
+    public /* ApiTypes\QuestionType */ $QuestionType;
 
     /**
      * Answer's content
      */
-    public /*string*/ $Content;
+    public /* string */ $Content;
 
     /**
      * Is the answer required
      */
-    public /*bool*/ $Required;
+    public /* bool */ $Required;
 
     /**
      * Sequence of the answers
      */
-    public /*int*/ $Sequence;
+    public /* int */ $Sequence;
 
     /**
      * 
      */
-    public /*Array<ApiTypes\SurveyStepAnswer>*/ $SurveyStepAnswers;
+    public /* Array<ApiTypes\SurveyStepAnswer> */ $SurveyStepAnswers;
 
 }
 
 /**
  * Single step's answer object
  */
-class SurveyStepAnswer
-{
+class SurveyStepAnswer {
+
     /**
      * Identifier of the answer of the step
      */
-    public /*string*/ $SurveyStepAnswerID;
+    public /* string */ $SurveyStepAnswerID;
 
     /**
      * Answer's content
      */
-    public /*string*/ $Content;
+    public /* string */ $Content;
 
     /**
      * Sequence of the answers
      */
-    public /*int*/ $Sequence;
+    public /* int */ $Sequence;
 
 }
 
@@ -6116,8 +6130,8 @@ class SurveyStepAnswer
  * 
  * Enum class
  */
-abstract class SurveyStepType
-{
+abstract class SurveyStepType {
+
     /**
      * 
      */
@@ -6148,84 +6162,84 @@ abstract class SurveyStepType
 /**
  * Template
  */
-class Template
-{
+class Template {
+
     /**
      * ID number of template.
      */
-    public /*int*/ $TemplateID;
+    public /* int */ $TemplateID;
 
     /**
      * 0 for API connections
      */
-    public /*ApiTypes\TemplateType*/ $TemplateType;
+    public /* ApiTypes\TemplateType */ $TemplateType;
 
     /**
      * Filename
      */
-    public /*string*/ $Name;
+    public /* string */ $Name;
 
     /**
      * Date of creation in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $DateAdded;
+    public /* DateTime */ $DateAdded;
 
     /**
      * CSS style
      */
-    public /*string*/ $Css;
+    public /* string */ $Css;
 
     /**
      * Default subject of email.
      */
-    public /*string*/ $Subject;
+    public /* string */ $Subject;
 
     /**
      * Default From: email address.
      */
-    public /*string*/ $FromEmail;
+    public /* string */ $FromEmail;
 
     /**
      * Default From: name.
      */
-    public /*string*/ $FromName;
+    public /* string */ $FromName;
 
     /**
      * HTML code of email (needs escaping).
      */
-    public /*string*/ $BodyHtml;
+    public /* string */ $BodyHtml;
 
     /**
      * Text body of email.
      */
-    public /*string*/ $BodyText;
+    public /* string */ $BodyText;
 
     /**
      * ID number of original template.
      */
-    public /*int*/ $OriginalTemplateID;
+    public /* int */ $OriginalTemplateID;
 
     /**
      * Enum: 0 - private, 1 - public, 2 - mockup
      */
-    public /*ApiTypes\TemplateScope*/ $TemplateScope;
+    public /* ApiTypes\TemplateScope */ $TemplateScope;
 
 }
 
 /**
  * List of templates (including drafts)
  */
-class TemplateList
-{
+class TemplateList {
+
     /**
      * List of templates
      */
-    public /*Array<ApiTypes\Template>*/ $Templates;
+    public /* Array<ApiTypes\Template> */ $Templates;
 
     /**
      * List of draft templates
      */
-    public /*Array<ApiTypes\Template>*/ $DraftTemplate;
+    public /* Array<ApiTypes\Template> */ $DraftTemplate;
 
 }
 
@@ -6233,8 +6247,8 @@ class TemplateList
  * 
  * Enum class
  */
-abstract class TemplateScope
-{
+abstract class TemplateScope {
+
     /**
      * Template is available for this account only.
      */
@@ -6251,8 +6265,8 @@ abstract class TemplateScope
  * 
  * Enum class
  */
-abstract class TemplateType
-{
+abstract class TemplateType {
+
     /**
      * Template supports any valid HTML
      */
@@ -6268,22 +6282,22 @@ abstract class TemplateType
 /**
  * Information about tracking link and its clicks.
  */
-class TrackedLink
-{
+class TrackedLink {
+
     /**
      * URL clicked
      */
-    public /*string*/ $Link;
+    public /* string */ $Link;
 
     /**
      * Number of clicks
      */
-    public /*string*/ $Clicks;
+    public /* string */ $Clicks;
 
     /**
      * Percent of clicks
      */
-    public /*string*/ $Percent;
+    public /* string */ $Percent;
 
 }
 
@@ -6291,8 +6305,8 @@ class TrackedLink
  * 
  * Enum class
  */
-abstract class TrackingType
-{
+abstract class TrackingType {
+
     /**
      * 
      */
@@ -6329,8 +6343,8 @@ abstract class TrackingType
  * Status of ValidDomain used by DomainValidationService to determine how often tracking validation should be performed.
  * Enum class
  */
-abstract class TrackingValidationStatus
-{
+abstract class TrackingValidationStatus {
+
     /**
      * 
      */
@@ -6356,128 +6370,128 @@ abstract class TrackingValidationStatus
 /**
  * Account usage
  */
-class Usage
-{
+class Usage {
+
     /**
      * Proper email address.
      */
-    public /*string*/ $Email;
+    public /* string */ $Email;
 
     /**
      * True, if this account is a sub-account. Otherwise, false
      */
-    public /*bool*/ $IsSubAccount;
+    public /* bool */ $IsSubAccount;
 
     /**
      * 
      */
-    public /*Array<ApiTypes\UsageData>*/ $List;
+    public /* Array<ApiTypes\UsageData> */ $List;
 
 }
 
 /**
  * Detailed data about daily usage
  */
-class UsageData
-{
+class UsageData {
+
     /**
      * Date in YYYY-MM-DDThh:ii:ss format
      */
-    public /*DateTime*/ $Date;
+    public /* DateTime */ $Date;
 
     /**
      * Number of finished tasks
      */
-    public /*int*/ $JobCount;
+    public /* int */ $JobCount;
 
     /**
      * Overall number of recipients
      */
-    public /*int*/ $RecipientCount;
+    public /* int */ $RecipientCount;
 
     /**
      * Number of inbound emails
      */
-    public /*int*/ $InboundCount;
+    public /* int */ $InboundCount;
 
     /**
      * Number of attachments sent
      */
-    public /*int*/ $AttachmentCount;
+    public /* int */ $AttachmentCount;
 
     /**
      * Size of attachments sent
      */
-    public /*long*/ $AttachmentsSize;
+    public /* long */ $AttachmentsSize;
 
     /**
      * Calculated cost of sending
      */
-    public /*decimal*/ $Cost;
+    public /* decimal */ $Cost;
 
     /**
      * Number of pricate IPs
      */
-    public /*?int*/ $PrivateIPCount;
+    public /* ?int */ $PrivateIPCount;
 
     /**
      * 
      */
-    public /*decimal*/ $PrivateIPCost;
+    public /* decimal */ $PrivateIPCost;
 
     /**
      * Number of SMS
      */
-    public /*?int*/ $SmsCount;
+    public /* ?int */ $SmsCount;
 
     /**
      * Overall cost of SMS
      */
-    public /*decimal*/ $SmsCost;
+    public /* decimal */ $SmsCost;
 
     /**
      * Cost of templates
      */
-    public /*decimal*/ $TemplateCost;
+    public /* decimal */ $TemplateCost;
 
     /**
      * Cost of email credits
      */
-    public /*?int*/ $EmailCreditsCost;
+    public /* ?int */ $EmailCreditsCost;
 
     /**
      * Cost of template credit
      */
-    public /*?int*/ $TemplateCreditsCost;
+    public /* ?int */ $TemplateCreditsCost;
 
     /**
      * Cost of litmus credits
      */
-    public /*decimal*/ $LitmusCost;
+    public /* decimal */ $LitmusCost;
 
     /**
      * Cost of 1 litmus credit
      */
-    public /*decimal*/ $LitmusCreditsCost;
+    public /* decimal */ $LitmusCreditsCost;
 
     /**
      * Daily cost of Contact Delivery Tools
      */
-    public /*decimal*/ $ContactCost;
+    public /* decimal */ $ContactCost;
 
     /**
      * Number of contacts
      */
-    public /*long*/ $ContactCount;
+    public /* long */ $ContactCount;
 
     /**
      * 
      */
-    public /*decimal*/ $SupportCost;
+    public /* decimal */ $SupportCost;
 
     /**
      * 
      */
-    public /*decimal*/ $EmailCost;
+    public /* decimal */ $EmailCost;
 
 }

@@ -99,10 +99,27 @@ if (isset($_GET['settings-updated'])):
                             </div>
                         </td>
                     </tr>
+
+                    <?php
+                    if (isset($issub) || isset($requiresemailcredits) || isset($emailcredits)) {
+                        if ($emailcredits != 0) {
+                            if ($issub == false || $requiresemailcredits == false) {
+                                echo '<tr valign="top"><th scope="row">' . __('Email Credits:', 'elastic-email-sender') . '</th><td>' . $emailcredits . '</td></tr>';
+                            }
+                        }
+                    }
+                    ?>
+                    <tr valign="top">
+                        <th scope="row"><?php _e('Credit status:', 'elastic-email-sender') ?></th>
+                        <td>
+                            <?php echo get_option('elastic-email-credit-status'); ?>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <?php submit_button(); ?>
         </form>
+       
         <?php if (empty($error) === false) { ?><?php _e('Do not have an account yet? <a href="https://elasticemail.com/account#/create-account" target="_blank" title="First 1000 emails for free.">Create your account now</a>!<br/>
             <a href="http://elasticemail.com/transactional-email" target="_blank"> Tell me more about it</a>', 'elastic-email-sender') ?>
         <?php } ?>
@@ -110,7 +127,7 @@ if (isset($_GET['settings-updated'])):
         <h4>
             <?php _e('Want to use this plugin in a different language version? <a href="http://support.elasticemail.com/"> Let us know or help us translate it!</a>', 'elastic-email-sender') ?>
         </h4>
-        <div class="ee_footer">
+        <div class="">
             <h4 class="ee_h4footer">
                 <?php _e('Share your experience of using Elastic Email WordPress Plugin by <a href="https://wordpress.org/support/plugin/elastic-email-sender/reviews/#new-post">rating us here.</a> Thanks!', 'elastic-email-sender') ?>
             </h4>

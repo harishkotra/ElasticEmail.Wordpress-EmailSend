@@ -230,6 +230,16 @@
     border-radius: 3px;
     min-height: 28px;
 }
+#eewp_plugin input[type="submit"]:disabled {
+    background: #ebedef;
+    color: #ffffff;
+    cursor: not-allowed;
+}
+#eewp_plugin input[type="text"]:disabled {
+    background: #ebedef;
+    color: #ffffff;
+    cursor: not-allowed;
+}
 #eewp_plugin .ee_deletebtn {
     background-color: #fd4949;
 }
@@ -266,15 +276,18 @@
 #eewp_plugin .ee_containerfull {
     width: 100%;
 }
-#eewp_plugin .ee_addetlist-success {
+#eewp_plugin .ee_addedlist-success {
     color: green;
     padding-top: 22px;
     font-weight: bold;
 }
-#eewp_plugin .ee_addetlist-warning {
+#eewp_plugin .ee_addedlist-warning {
     color: orange;
     padding-top: 22px;
     font-weight: bold;
+}
+#eewp_plugin .ee_addedlist-info {
+    color: orange;
 }
 #eewp_plugin .ee_refrestlists {
     cursor: pointer;
@@ -285,4 +298,7 @@
 }
 #eewp_plugin .ee_colorsetter {
     min-height: 250px;
+}
+#eewp_plugin .ee_clearfix {
+    overflow: auto;
 }

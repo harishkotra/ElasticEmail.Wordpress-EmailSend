@@ -14,7 +14,7 @@ if (isset($_GET['settings-updated'])):
     }
     ?>">
 
-        <section class="ee_containerfull">
+        <section class="ee_containerfull ee_clearfix">
             <div class="ee_col-11 ee_header">
                 <div class="ee_logo">
                     <?php echo '<img src="' . esc_url(plugins_url('/assets/images/icon.png', dirname(__FILE__))) . '" > ' ?>
@@ -88,10 +88,11 @@ if (isset($_GET['settings-updated'])):
 
             <hr>
 
-            <section class="ee_containerfull ee_namelist">
+            <section class="ee_containerfull ee_namelist ee_clearfix">
                 <!-- create html list string to webform -->
                 <?php
                 if (isset($list['data'])) {
+
                     $number_of_lists = count($list['data']);
                     $new_list_template = array();
                     if (isset($_POST['addLists'])) {
@@ -131,51 +132,30 @@ if (isset($_GET['settings-updated'])):
                 <p class="ee_title_small">You are currently adding to the lists:</p>
                 <div class="ee_col-12 ee_selectedlist">
                     <?php
-                    if (get_option('ee_selectedlists') == true) {
-                        $selectedlists = get_option('ee_selectedlists');
-                        echo '<p>' . implode(", ", $selectedlists) . '</p>';
+                    if (get_option('ee_enablecontactfeatures') == true) {
+                        if (get_option('ee_selectedlists') == true) {
+                            $selectedlists = get_option('ee_selectedlists');
+                            echo '<p>' . implode(", ", $selectedlists) . '</p>';
+                        } else {
+                            echo '<p>----</p>';
+                        }
                     } else {
-                        echo '<p>----</p>';
+                        echo '<p>All Contacts</p>';
                     }
                     ?>
                 </div>
             </section>
 
-            <hr>
 
-            <section class="ee_containerfull ee_newilstinput"> 
-                <div class="ee_col-8 ee_nopadding">
-                    <p class="ee_title_small">Add new list:</p>
-                    <form action="<?php echo admin_url('/admin.php?page=elasticemail-widget&added-succes=true'); ?>" method="post">
-                        <input type="text" name="listName" style="width: 70%;">
-                        <input type="submit" class="ee_button" name="addNewLists" value="Add new" />
-                    </form>
-                </div>
-                <?php
-                //add new list
-                if (isset($_POST['addNewLists'])) {
-                    if (isset($_POST['listName'])) {
-                        $newListName = filter_var($_POST['listName'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
-                        if ($newListName != '' && $newListName != ' ' && $newListName != NULL) {
-                            $newListStatus = true;
-                            update_option('ee_newListName', $newListName);
-                            do_action('addNewLists');
-                        } else {
-                            $newListStatus = false;
-                        }
-                        if (isset($_GET['added-succes'])) {
-                            if (isset($newListStatus) && $newListStatus == TRUE) {
-                                echo '<div class="ee_col-4"><p class="ee_addetlist-success">Success!</></div>';
-                            } else {
-                                echo '<div class="ee_col-4"><p class="ee_addetlist-warning">Incorrect name!</></div>';
-                            }
-                        }
-                    }
-                }
-                ?>
-            </section>
-            <hr>
-            <section class="ee_containerfull ee_checkboxlist">
+            <?php
+            if (get_option('ee_enablecontactfeatures') == false) {
+                $contactfeaturesstatus = 'disabled';
+            } else {
+                $contactfeaturesstatus = '';
+            }
+            ?>
+
+            <section class="ee_containerfull ee_checkboxlist ee_clearfix">
                 <div class="ee_col-11 ee_nopadding">
                     <p class="ee_title_small">Select list:</p>
                 </div>
@@ -186,7 +166,7 @@ if (isset($_GET['settings-updated'])):
                         $list_id = array();
                         $list_selected = array(array());
                         //creates checkbox with contact lists
-                        if (!isset($number_of_lists)) {
+                        if (!isset($number_of_lists) || get_option('ee_enablecontactfeatures') == false) {
                             $number_of_lists = 0;
                             echo '----';
                         }
@@ -214,12 +194,52 @@ if (isset($_GET['settings-updated'])):
                     ?>
 
                     <div class="ee_col-6 ee_nopadding ee_buttonpadding" style="text-align: left;">
-                        <input type="submit" class="ee_button ee_deletebtn" name="delLists" value="Delete" />
+                        <input type="submit" class="ee_button ee_deletebtn" name="delLists" value="Delete" <?php echo $contactfeaturesstatus; ?> />
                     </div>
                     <div class="ee_col-6 ee_nopadding ee_buttonpadding" style="text-align: right;">
-                        <input type="submit" class="ee_button" name="addLists" value="Add" />
+                        <input type="submit" class="ee_button" name="addLists" value="Add" <?php echo $contactfeaturesstatus; ?> />
                     </div>
                 </form>
+            </section>
+            <hr>
+            <section class="ee_containerfull ee_newilstinput ee_clearfix"> 
+                <div class="ee_col-8 ee_nopadding">
+                    <p class="ee_title_small">Add new list:</p>
+
+                    <form action="<?php echo admin_url('/admin.php?page=elasticemail-widget&added-succes=true'); ?>" method="post">
+                        <input type="text" name="listName" style="width: 70%;" <?php echo $contactfeaturesstatus; ?> />
+                        <input type="submit" class="ee_button" name="addNewLists" value="Add new" <?php echo $contactfeaturesstatus; ?> />
+                    </form>
+                </div>
+                <?php
+                if (get_option('ee_enablecontactfeatures') == false) {
+                    echo '<div class="ee_col-4"><p class="ee_addedlist-info">Some options are hidden because you have Contact Delivery Tools disabled. Turn it on <a href="https://elasticemail.com/account/#/settings/accountconfiguration">here.</a> </></div>';
+                } else {
+                    echo '<div class="ee_col-4"></div>';
+                }
+                ?>
+                <?php
+                //add new list
+                if (isset($_POST['addNewLists'])) {
+                    if (isset($_POST['listName'])) {
+                        $newListName = filter_var($_POST['listName'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+                        if ($newListName != '' && $newListName != ' ' && $newListName != NULL) {
+                            $newListStatus = true;
+                            update_option('ee_newListName', $newListName);
+                            do_action('addNewLists');
+                        } else {
+                            $newListStatus = false;
+                        }
+                        if (isset($_GET['added-succes'])) {
+                            if (isset($newListStatus) && $newListStatus == TRUE) {
+                                echo '<div class="ee_col-4"><p class="ee_addetlist-success">Success!</></div>';
+                            } else {
+                                echo '<div class="ee_col-4"><p class="ee_addetlist-warning">Incorrect name!</></div>';
+                            }
+                        }
+                    }
+                }
+                ?>
             </section>
         <?php } else { ?>
             <div class="">

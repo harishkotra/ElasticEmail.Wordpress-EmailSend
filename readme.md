@@ -68,6 +68,9 @@ You can see your reports and sending history in Reports/Email logs. Keep in mind
 
 ## Versioning
 
+###### 1.0.12
+* Added: credit status, tooltips, improved stability
+
 ###### 1.0.11
 * Buxfix -integration with Elastic Email Subscribe Form
 
