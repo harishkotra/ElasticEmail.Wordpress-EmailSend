@@ -56,8 +56,13 @@ class ApiClient {
                 ),
                 'body' => implode("", self::$postbody)));
 
-
-            $jsonresponse = json_decode($response['body'], true);
+            // Verify that the response returned is proper
+            if (is_array($response) && !empty($response['body'])) {
+                $jsonresponse = json_decode($response['body'], true);
+            } else {
+                //response is not an array
+                 $jsonresponse = '';
+            }
            
             if (!is_wp_error($response)) {
                 if (isset($jsonresponse['error'])) {
