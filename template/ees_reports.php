@@ -8,12 +8,14 @@ if (isset($_GET['settings-updated'])):
     </div>
 <?php endif; ?>
 <div id="eewp_plugin" class="ee_row eewp_container">
-    <div class="ee_col-7 <?php if (empty($error) === TRUE) {
-    echo 'ee_line';
-} ?>">
+    <div class="ee_col-7 <?php
+    if (empty($error) === TRUE) {
+        echo 'ee_line';
+    }
+    ?>">
         <div class="ee_header">
             <div class="ee_logo">
-            <?php echo '<img src="' . esc_url(plugins_url('/assets/images/icon.png', dirname(__FILE__))) . '" > ' ?>
+                <?php echo '<img src="' . esc_url(plugins_url('/assets/images/icon.png', dirname(__FILE__))) . '" > ' ?>
             </div>
             <?php
             if (isset($_POST['daterange'])) {
@@ -209,10 +211,10 @@ if (isset($_GET['settings-updated'])):
             </div>
             <div class="ee_footer">
                 <h4 class="ee_h4footer">
-            <?php _e('Share your experience of using Elastic Email WordPress Plugin by <a href="https://wordpress.org/support/plugin/elastic-email-sender/reviews/#new-post">rating us here.</a> Thanks!', 'elastic-email-sender') ?>
+                    <?php _e('Share your experience of using Elastic Email WordPress Plugin by <a href="https://wordpress.org/support/plugin/elastic-email-sender/reviews/#new-post">rating us here.</a> Thanks!', 'elastic-email-sender') ?>
                 </h4>
             </div>
-<?php } else { ?>
+        <?php } else { ?>
 
             <div class="">
                 <div class="" style="text-align: center; padding-top: 10%; padding-bottom: 5%;">
@@ -220,24 +222,26 @@ if (isset($_GET['settings-updated'])):
                 </div>
                 <div class="ee_connect-alert">
                     <h1>
-    <?php _e('Oops! Your Elastic Email account has not been connected. Configure the settings to start using the plugin.', 'elastic-email-sender') ?>
+                        <?php _e('Oops! Your Elastic Email account has not been connected. Configure the settings to start using the plugin.', 'elastic-email-sender') ?>
                     </h1>
                 </div>
             </div>
-<?php } ?>
+        <?php } ?>
     </div> 
 
-    <div class="ee_col-5 ee_marketing" <?php if (empty($error) !== true) {
-    echo 'style="border-left: 2px solid #e0e0e0;"';
-} ?>>
+    <div class="ee_col-5 ee_marketing" <?php
+    if (empty($error) !== true) {
+        echo 'style="border-left: 2px solid #e0e0e0;"';
+    }
+    ?>>
         <h2 class="ee_h2"><?php _e('Let us help you send better emails!', 'elastic-email-sender') ?></h2>
         <h4 class="ee_footertext">
-        <?php _e('If you are new to Elastic Email, feel free to visit our <a href="https://elasticemail.com">website</a> and find out how our comprehensive set of tools will help you reach your goals or get premium email marketing tools at a fraction of what you\'re paying now!', 'elastic-email-sender') ?>
+            <?php _e('If you are new to Elastic Email, feel free to visit our <a href="https://elasticemail.com">website</a> and find out how our comprehensive set of tools will help you reach your goals or get premium email marketing tools at a fraction of what you\'re paying now!', 'elastic-email-sender') ?>
         </h4>
         <hr>
         <h4 class = "ee_h4"><?php _e('If you already use Elastic Email to send your emails, you can subscribe to our monthly updates to start receiving the latest email news, tips, best practices and more.', 'elastic-email-sender') ?></h4>
-<?php if (isset($_GET['subscribe']) === false) {
-    ?>
+        <?php if (isset($_GET['subscribe']) === false) {
+            ?>
             <form action="https://api.elasticemail.com/contact/add?version=2" method="post">
                 <fieldset style="border:none;">
                     <input type="hidden" name="publicaccountid" value="49540e0f-2e09-4101-a05d-5032842b99d3">
@@ -287,5 +291,16 @@ if (isset($_GET['settings-updated'])):
         </ul>
         <br/>
         <h4 class="ee_h4"><?php _e('Remember that in case of any other questions or feedback, you can always contact our friendly <a href="http://support.elasticemail.com/">Support Team.</a>', 'elastic-email-sender') ?></h4>
+
+        <?php if ($this->subscribe_status == false) { ?>
+            <a href="https://wordpress.org/plugins/elastic-email-subscribe-form/">
+                <div class="ee_col-1">
+                    <img src="<?php echo esc_url(plugins_url('/assets/images/subscribe_clean.svg', dirname(__FILE__))) ?>" width="30">
+                </div>
+                <div class="ee_col-11">
+                    Elastic Email Subscribe Form - Check It!
+                </div>
+            </a>
+        <?php } ?>
     </div>
 </div>

@@ -2,7 +2,7 @@
 
 # Elastic Email Sender
 
-This plugin reconfigures the wp_mail() function to send email using REST API (via Elastic Email) instead of SMTP and creates an options page that allows you to specify various options.
+This plugin reconfigures the wp_mail() function to send email using HTTP API (via Elastic Email) instead of SMTP and creates an options page that allows you to specify various options.
 
 ## Description
 
@@ -67,6 +67,19 @@ All the data about your delivery statuses and campaigns stats are available in R
 You can see your reports and sending history in Reports/Email logs. Keep in mind that logs older than 35 days are not stored. [account](https://elasticemail.com/account/#/reports/emails).
 
 ## Versioning
+
+###### 1.1.0
+* Added: A queue of unsent messages
+* Added: New account status
+* Added: Improvements for support
+* Fixed: Cc and bcc
+* Fixed: Message formatting in text/plain
+* Fixed: Password reset link
+* Fixed: Upgrade
+* Fixed: Integration with Elastic Email Subscribe Form
+
+###### 1.0.13
+* Fixed: error handling, credit statuses, improved stability
 
 ###### 1.0.12
 * Added: credit status, tooltips, improved stability

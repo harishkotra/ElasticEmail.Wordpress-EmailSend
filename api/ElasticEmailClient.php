@@ -3,7 +3,7 @@
 /*
   The MIT License (MIT)
 
-  Copyright (c) 2016-2017 Elastic Email, Inc.
+  Copyright (c) 2016-2018 Elastic Email, Inc.
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
  */
 
 /* Sender */
+
 namespace ElasticEmailClient;
 
 use ApiTypes;
@@ -36,6 +37,7 @@ class ApiClient {
     private static $postbody, $boundary;
 
     public static function Request($target, $data = array(), $method = "GET", array $attachments = array()) {
+
         self::$postbody = array();
         self::$boundary = hash('sha256', uniqid('', true));
         $url = self::$ApiUri . $target;
@@ -65,16 +67,6 @@ class ApiClient {
             }
            
             if (!is_wp_error($response)) {
-                if (isset($jsonresponse['error'])) {
-                    if (($jsonresponse['error'] == 'Not enough credit for campaign.') || ($jsonresponse['error'] == 'Error: Daily limit exceeded. Please fill out your profile to have this daily limit removed.')) {
-                        update_option('elastic-email-credit-status', '<span style="color:red;font-weight:bold;">Not enough credit for send email</span>');
-                    }
-                }
-
-                if (isset($jsonresponse['data']['transactionid'])) {
-                    update_option('elastic-email-credit-status', '<span style="color:green;font-weight:bold;">OK</span>');
-                }
-
                 if ($response['response']['code'] != 200) {
                     return "Code Error: " . $response['response']['code'];
                 }
@@ -272,6 +264,15 @@ class Account {
                     'subAccountEmail' => $subAccountEmail,
                     'publicAccountID' => $publicAccountID
         ));
+    }
+
+    /**
+     * Validate account's ability to send e-mail
+     * @param string $apikey ApiKey that gives you access to our SMTP and HTTP API's.
+     * @return ApiTypes\AccountSendStatus
+     */
+    public function GetAccountAbilityToSendEmail() {
+        return ApiClient::Request('account/getaccountabilitytosendemail');
     }
 
     /**
@@ -1003,7 +1004,7 @@ class Contact {
      * @param string $notifyEmail Emails, separated by semicolon, to which the notification about contact subscribing should be sent to
      * @return string
      */
-    public function Add($publicAccountID, $email, array $publicListID = array(), array $listName = array(), $firstName = null, $lastName = null, $source = ApiTypes\ContactSource::ContactApi, $returnUrl = null, $sourceUrl = null, $activationReturnUrl = null, $activationTemplate = null, $sendActivation = true, $consentDate = null, $consentIP = null, array $field = array(), $notifyEmail = null) {
+    public function Add($publicAccountID, $email, array $publicListID = array(), array $listName = array(), $firstName = null, $lastName = null, $source = ApiTypes\ContactSource::ContactApi, $returnUrl = null, $sourceUrl = null, $activationReturnUrl = null, $activationTemplate = null, $sendActivation = false, $consentDate = null, $consentIP = null, array $field = array(), $notifyEmail = null) {
         $arr = array('publicAccountID' => $publicAccountID,
             'email' => $email,
             'publicListID' => (count($publicListID) === 0) ? null : join(';', $publicListID),
@@ -1015,6 +1016,7 @@ class Contact {
             'sourceUrl' => $sourceUrl,
             'activationReturnUrl' => $activationReturnUrl,
             'activationTemplate' => $activationTemplate,
+//            'sendActivation' => $sendActivation,
             'sendActivation' => $sendActivation,
             'consentDate' => $consentDate,
             'consentIP' => $consentIP,
@@ -1022,6 +1024,7 @@ class Contact {
         foreach (array_keys($field) as $key) {
             $arr['field_' . $key] = $field[$key];
         }
+
         return ApiClient::Request('contact/add', $arr);
     }
 
@@ -1526,6 +1529,7 @@ class Email {
         foreach (array_keys($merge) as $key) {
             $arr['merge_' . $key] = $merge[$key];
         }
+
         return ApiClient::Request('email/send', $arr, "POST", $attachmentFiles);
     }
 

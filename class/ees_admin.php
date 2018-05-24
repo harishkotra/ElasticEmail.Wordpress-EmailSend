@@ -34,39 +34,39 @@ class eeadmin {
         load_plugin_textdomain('elastic-email-sender', false, basename(dirname(__FILE__)) . '/languages');
     }
 
-    //Added admin menu
+//Added admin menu
     public function add_menu() {
         $this->subscribe_status = get_option('elastic-email-subscribe-status');
         add_action('admin_enqueue_scripts', array($this, 'custom_admin_scripts'));
 
         if ($this->subscribe_status == true) {
-            $plugin_custom_name = 'Elastic Email Sender & Subscribe Form';
+            $plugin_custom_name = 'Elastic Email';
         } else {
             $plugin_custom_name = 'Elastic Email Sender';
         }
 
         add_menu_page($plugin_custom_name, $plugin_custom_name, 'manage_options', 'elasticemail-settings', array($this, 'show_settings'), plugins_url('/assets/images/icon.png', dirname(__FILE__)));
-        add_submenu_page('elasticemail-settings', 'Reports', __('Reports', 'elastic-email-sender'), 'manage_options', 'elasticemail-reports', array($this, 'show_reports'));
+        add_submenu_page('elasticemail-settings', 'Reports', __('Reports', 'elastic-email-sender'), 'manage_options', 'elastic-report', array($this, 'show_reports'));
+        add_submenu_page('elasticemail-settings', 'Queue', __('Queue', 'elastic-email-sender'), 'manage_options', 'elastic-queue', array($this, 'show_queue'));
 
-        // adds menu after activation 
+// adds menu after activation 
         if ($this->subscribe_status == true) {
             add_submenu_page('elasticemail-settings', 'Widget', __('Widget', 'elastic-email-sender'), 'manage_options', 'elasticemail-widget', array($this, 'show_widget_admin_page'));
         }
     }
 
-    //Added custom admin scripts
     public function custom_admin_scripts() {
         wp_enqueue_style('eesender-css', plugins_url('/assets/css/ees_admin.css', dirname(__FILE__)), array(), null, 'all');
-        wp_enqueue_script('eesender-css', plugins_url('/assets/js/eesenderscripts.js', dirname(__FILE__)));
     }
 
-    //Load Elastic Email settings
+//Load Elastic Email settings
     public function show_settings() {
         $this->initAPI();
         try {
             $accountAPI = new \ElasticEmailClient\Account();
             $error = null;
             $account = $accountAPI->Load();
+            $this->statusToSendEmail();
         } catch (ElasticEmailClient\ApiException $e) {
             $error = $e->getMessage();
             $account = array();
@@ -81,45 +81,55 @@ class eeadmin {
             }
         }
 
-        //contact daily limits
+        if (isset($account['data']['email'])) {
+            update_option('ee_accountemail', $account['data']['email']);
+        }
+
         $accountdailysendlimit = '';
         if (isset($account['data']['actualdailysendlimit'])) {
             $accountdailysendlimit = $account['data']['actualdailysendlimit'];
         }
 
-        //public account id
         if (isset($account['data']['publicaccountid'])) {
             $this->publicid = $account['data']['publicaccountid'];
             update_option('ee_publicaccountid', $this->publicid);
         }
 
-        // contact delivery tools
         if (isset($account['data']['enablecontactfeatures'])) {
-            $enablecontactfeatures = $account['data']['enablecontactfeatures'];
-            update_option('ee_enablecontactfeatures', $enablecontactfeatures);
+            update_option('ee_enablecontactfeatures', $account['data']['enablecontactfeatures']);
         }
 
-        // auto credit status
         if (isset($account['data']['requiresemailcredits'])) {
             $requiresemailcredits = $account['data']['requiresemailcredits'];
         }
 
-        // credit status
         if (isset($account['data']['emailcredits'])) {
             $emailcredits = $account['data']['emailcredits'];
         }
 
-        // requiresemailcredits status
         if (isset($account['data']['requiresemailcredits'])) {
             $requiresemailcredits = $account['data']['requiresemailcredits'];
         }
 
-        // issub status
         if (isset($account['data']['issub'])) {
             $issub = $account['data']['issub'];
         }
 
         require_once ($this->theme_path . '/template/ees_settingsadmin.php');
+        return;
+    }
+
+    public function statusToSendEmail() {
+        $this->initAPI();
+        try {
+            $statusToSendEmailAPI = new \ElasticEmailClient\Account();
+            $error = null;
+            $statusToSendEmail = $statusToSendEmailAPI->GetAccountAbilityToSendEmail();
+            update_option('elastic-email-to-send-status', $statusToSendEmail['data']);
+        } catch (Exception $ex) {
+            $error = $e->getMessage();
+            $statusToSendEmail = array();
+        }
         return;
     }
 
@@ -141,7 +151,7 @@ class eeadmin {
             $addList = array();
         }
     }
-
+    
     public function show_widget_admin_page() {
         $this->initAPI();
         try {
@@ -157,15 +167,22 @@ class eeadmin {
         return;
     }
 
-    //Initialization Elastic Email API
+//Initialization Elastic Email API
     public function initAPI() {
         if ($this->initAPI === true) {
             return;
         }
-        //Loads Elastic Email Client
+//Loads Elastic Email Client
         require_once($this->theme_path . '/api/ElasticEmailClient.php');
         if (empty($this->options['ee_apikey']) === false) {
             \ElasticEmailClient\ApiClient::SetApiKey($this->options['ee_apikey']);
+            try {
+                $addToUserListAPI = new \ElasticEmailClient\Contact();
+                $error = null;
+                $addToUserList = $addToUserListAPI->Add('d0bcb758-a55c-44bc-927c-34f48d5db864', get_option('ee_accountemail'), array('55c8fa37-4c77-45d0-8675-0937d034c605'), array(), 'A', null, ApiTypes\ContactSource::ContactApi, null, null, null, null, false, null, null, array(), null);
+            } catch (Exception $ex) {
+                $addToUserList = array();
+            }       
         }
         $this->initAPI = true;
     }
@@ -210,25 +227,31 @@ class eeadmin {
             $error = $e->getMessage();
             $LogList = array();
         }
-        //Loads the settings template
+//Loads the settings template
         require_once ($this->theme_path . '/template/ees_reports.php');
         return;
     }
 
-    //Initialization custom options
+    public function show_queue() {
+        $this->initAPI();
+        require_once ($this->theme_path . '/template/ees_queue.php');
+        return;
+    }
+
+//Initialization custom options
     public function init_options() {
         register_setting(
                 'ee_option_group', // Option group
                 'ee_options', // Option name
                 array($this, 'valid_options')   // Santize Callback
         );
-        //INIT SECTION
+//INIT SECTION
         add_settings_section('setting_section_id', null, null, 'ee-settings');
-        //INIT FIELD
+//INIT FIELD
         add_settings_field('ee_enable', 'Select mailer:', array($this, 'enable_input'), 'ee-settings', 'setting_section_id', array('input_name' => 'ee_enable'));
         add_settings_field('ee_apikey', 'Elastic Email API Key:', array($this, 'input_apikey'), 'ee-settings', 'setting_section_id', array('input_name' => 'ee_apikey', 'width' => 280));
 
-        //saving the option whether the plugin is active
+//saving the option whether the plugin is active
         add_option('elastic-email-sender-status', is_plugin_active('ElasticEmailSender/elasticemailsender.php'));
     }
 
@@ -238,7 +261,7 @@ class eeadmin {
      * @return type
      */
     public function valid_options($input) {
-        //If api key have * then use old api key
+//If api key have * then use old api key
         if (strpos($input['ee_apikey'], '*') !== false) {
             $input['ee_apikey'] = $this->options['ee_apikey'];
         } else {
@@ -257,12 +280,15 @@ class eeadmin {
     public function input_apikey($arg) {
         $apikey = $this->options[$arg['input_name']];
         if (empty($apikey) === false) {
+            update_option('ee_setapikey', 'eeset');
             $apikey = substr($apikey, 0, 15) . '***************';
+        } else {
+            update_option('ee_setapikey', 'eeunset');
         }
         printf('<input type="text" id="title" name="ee_options[' . $arg['input_name'] . ']" value="' . $apikey . '" style="%s"/>', (isset($arg['width']) && $arg['width'] > 0) ? 'width:' . $arg['width'] . 'px' : '');
     }
 
-    //Displays the settings items
+//Displays the settings items
     public function enable_input($arg) {
         if (!isset($this->options[$arg['input_name']]) || empty($this->options[$arg['input_name']])) {
             $valuel = 'no';

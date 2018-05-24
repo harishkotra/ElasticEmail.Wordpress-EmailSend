@@ -41,7 +41,7 @@ if (isset($_GET['settings-updated'])):
                         <td>
                             <?php
                             if (isset($accountstatus)) {
-                                if ($accountstatus === 1) {
+                                if ($accountstatus == 1) {
                                     $accountstatusname = '<span class="ee_account-status-active">' . __('Active', 'elastic-email-sender') . '</span>';
                                 } else {
                                     $accountstatusname = '<span class="ee_account-status-deactive">' . __('Please conect to Elastic Email API or complete the profile', 'elastic-email-sender') . ' <a href="https://elasticemail.com/account/#/account/profile">' . __('Complete your profile </a> or connect to Elastic Email API to start using the plugin.', 'elastic-email-sender') . '</span>';
@@ -108,18 +108,34 @@ if (isset($_GET['settings-updated'])):
                             }
                         }
                     }
+
+                    if (get_option('elastic-email-to-send-status') !== NULL) {
+                        if (get_option('elastic-email-to-send-status') == 1) {
+                            $getaccountabilitytosendemail_single = '<span style="color: red;">Account doesn\'t have enough credits</span>';
+                        } elseif (get_option('elastic-email-to-send-status') == 2) {
+                            $getaccountabilitytosendemail_single = '<span style="color: orange;">Account can send e-mails but only without the attachments</span>';
+                        } elseif (get_option('elastic-email-to-send-status') == 3) {
+                            $getaccountabilitytosendemail_single = '<span style="color: red;">Daily Send Limit Exceeded</span>';
+                        } elseif (get_option('elastic-email-to-send-status') == 4) {
+                            $getaccountabilitytosendemail_single = '<span style="color: green;">Account is ready to send e-mails</span>';
+                        } else {
+                            $getaccountabilitytosendemail_single = '<span style="color: red;">Check the account configuration</span>';
+                        }
+                    } else {
+                        $getaccountabilitytosendemail_single = '---';
+                    }
                     ?>
                     <tr valign="top">
                         <th scope="row"><?php _e('Credit status:', 'elastic-email-sender') ?></th>
                         <td>
-                            <?php echo get_option('elastic-email-credit-status'); ?>
+                            <?php echo '<span>' . $getaccountabilitytosendemail_single . '</span>'; ?>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <?php submit_button(); ?>
         </form>
-       
+
         <?php if (empty($error) === false) { ?><?php _e('Do not have an account yet? <a href="https://elasticemail.com/account#/create-account" target="_blank" title="First 1000 emails for free.">Create your account now</a>!<br/>
             <a href="http://elasticemail.com/transactional-email" target="_blank"> Tell me more about it</a>', 'elastic-email-sender') ?>
         <?php } ?>
@@ -192,5 +208,15 @@ if (isset($_GET['settings-updated'])):
         <br/>
         <h4 class="ee_h4"><?php _e('Remember that in case of any other questions or feedback, you can always contact our friendly <a href="http://support.elasticemail.com/">Support Team.</a>', 'elastic-email-sender') ?></h4>
 
+        <?php if ($this->subscribe_status == false) { ?>
+        <a href="https://wordpress.org/plugins/elastic-email-subscribe-form/">
+            <div class="ee_col-1">
+                <img src="<?php echo esc_url(plugins_url('/assets/images/subscribe_clean.svg', dirname(__FILE__))) ?>" width="30">
+            </div>
+            <div class="ee_col-11">
+                Elastic Email Subscribe Form - Check It!
+            </div>
+        </a>
+        <?php } ?>
     </div>
 </div>
