@@ -1,6 +1,5 @@
 <?php
 defined('EE_ADMIN') OR die('No direct access allowed.');
-
 if (isset($_GET['settings-updated'])):
     ?>
     <div id="message" class="updated">
@@ -111,10 +110,8 @@ if (isset($_GET['settings-updated'])):
                             array_push($new_list_html, $new_list_html_single_item);
                         }
 
-
                         //save to option html string for widget input (lists input)
                         update_option('ee_selectedlists_html', $new_list_html);
-
 
                         $new_list_namelist = array();
                         foreach ($_POST as $new_list_namelist_key => $new_list_namelist_value) {
@@ -145,7 +142,6 @@ if (isset($_GET['settings-updated'])):
                     ?>
                 </div>
             </section>
-
 
             <?php
             if (get_option('ee_enablecontactfeatures') == false) {
@@ -319,6 +315,6 @@ if (isset($_GET['settings-updated'])):
             <li type="circle"><a href="https://elasticemail.com/contact/">Want to talk with a live person? Contact us</a></li>
         </ul>
         <br/>
-        <h4 class="ee_h4">Remember that in case of any other questions or feedback, you can always contact our friendly <a href="http://support.elasticemail.com/">Support Team.</a></h4>
+        <h4 class="ee_h4">Remember that in case of any other questions or feedback, you can always contact our friendly <a href="http://support.elasticemail.com/">Support Team.</a></h4>   
     </div>
 </div>

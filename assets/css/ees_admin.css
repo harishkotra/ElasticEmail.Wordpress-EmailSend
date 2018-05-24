@@ -230,6 +230,22 @@
     border-radius: 3px;
     min-height: 28px;
 }
+#eewp_plugin .ee_button_resend {
+    background-color: #fdb106;
+    text-transform: uppercase;
+    border: none;
+    color: white;
+    padding: 0px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    min-width: 68px;
+    cursor: pointer;
+    line-height: 0;
+    border-radius: 3px;
+    min-height: 15px;
+}
 #eewp_plugin input[type="submit"]:disabled {
     background: #ebedef;
     color: #ffffff;
@@ -301,4 +317,10 @@
 }
 #eewp_plugin .ee_clearfix {
     overflow: auto;
+}
+#eewp_plugin .ee_tablestyle {
+    border-top: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+    min-height: 50px;
+    overflow: hidden;
 }
